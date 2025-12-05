@@ -8,7 +8,7 @@ import { LoginResponse } from '../interfaces/login-response.interface';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'YOUR_BACKEND_LOGIN_URL'; // Placeholder: ¡Asegúrate de reemplazar esta URL!
+  private apiUrl = 'http://localhost:8081';
 
   constructor(private http: HttpClient) { }
 
@@ -20,21 +20,7 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<LoginResponse> {
     // Aquí puedes realizar la llamada HTTP real a tu backend
     // Por ejemplo:
-    // return this.http.post<LoginResponse>(this.apiUrl, credentials);
-
-    // Placeholder: Simula una respuesta exitosa después de un pequeño retraso
-    // Elimina esto cuando integres tu backend real.
-    console.log('Simulando inicio de sesión con:', credentials);
-    let userRole: string;
-    if (credentials.username.includes('admin')) {
-      userRole = 'admin';
-    } else if (credentials.username.includes('empleado')) {
-      userRole = 'empleado';
-    } else {
-      userRole = 'empleado'; // Rol por defecto
-    }
-
-    return of({ token: 'mock-jwt-token-12345', role: userRole });
+    return this.http.post<LoginResponse>(`${this.apiUrl}/api/auth/login`, credentials);
   }
 
   // Otros métodos de autenticación (logout, isLogged, etc.) podrían ir aquí.

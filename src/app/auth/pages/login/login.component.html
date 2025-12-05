@@ -57,7 +57,10 @@
                     </div>
                 </div>
 
-                <button type="submit" class="login-button" [disabled]="loginForm.invalid">Iniciar sesión</button>
+                <button type="submit" class="login-button" [disabled]="loginForm.invalid || isLoading">
+                    <span *ngIf="!isLoading">Iniciar sesión</span>
+                    <span *ngIf="isLoading">Cargando...</span>
+                </button>
             </form>
         </main>
     </div>

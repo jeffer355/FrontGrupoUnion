@@ -5,7 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { LoginRequest } from '../../interfaces/login-request.interface';
 import { LoginResponse } from '../../interfaces/login-response.interface'; // Importar LoginResponse
 import { Router } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http'; // Asegúrate de importar HttpClientModule
+import { HttpClientModule, HttpErrorResponse } from '@angular/common/http'; // Asegúrate de importar HttpClientModule
 
 @Component({
   selector: 'app-login',
@@ -19,6 +19,7 @@ export class LoginComponent implements OnInit {
   passwordFieldType: string = 'password';
   errorMessage: string | null = null;
   logoutMessage: string | null = null;
+  isLoading: boolean = false; // Add loading state
 
   constructor(
     private fb: FormBuilder,
@@ -63,26 +64,19 @@ export class LoginComponent implements OnInit {
     this.logoutMessage = null; // Clear previous logout messages
 
     if (this.loginForm.valid) {
+      this.isLoading = true; // Set loading to true
       const credentials: LoginRequest = this.loginForm.value;
       this.authService.login(credentials).subscribe({
         next: (response: LoginResponse) => {
-          // Asumimos que el backend devuelve un token y quizás otros datos de usuario.
-          // Aquí deberías guardar el token (ej. en localStorage) y redirigir al usuario.
+          this.isLoading = false; // Set loading to false on success
           console.log('Inicio de sesión exitoso:', response);
-          localStorage.setItem('authToken', response.token);
-          // Redirección basada en roles
-          if (response.role === 'admin') {
-            this.router.navigate(['/admin-dashboard']);
-          } else if (response.role === 'empleado') {
-            this.router.navigate(['/empleado-dashboard']);
-          } else {
-            this.router.navigate(['/dashboard']); // Redirige a la página principal o dashboard por defecto
-          }
+          this.router.navigate([response.redirectUrl]); // Redirección basada en la URL proporcionada por el backend
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
+          this.isLoading = false; // Set loading to false on error
           console.error('Error de inicio de sesión:', err);
-          // Puedes adaptar el mensaje de error según la respuesta del backend
-          this.errorMessage = 'Usuario o contraseña incorrectos. Por favor, inténtalo de nuevo.';
+          // Usar el mensaje de error del backend si está disponible, de lo contrario, un mensaje genérico.
+          this.errorMessage = err.error?.message || 'Error de inicio de sesión. Por favor, inténtalo de nuevo.';
         }
       });
     } else {
