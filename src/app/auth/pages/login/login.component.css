@@ -96,8 +96,7 @@
     color: var(--placeholder-color);
 }
 
-input[type="email"],
-input[type="password"] {
+.form-input { /* Usamos una clase en lugar de los selectores de atributo */
     padding: 15px 20px;
     background-color: var(--input-bg);
     border: none;
@@ -109,7 +108,7 @@ input[type="password"] {
     transition: box-shadow 0.3s ease;
 }
 
-input:focus {
+.form-input:focus { /* Aseguramos que el estilo de focus se aplique a la clase */
     box-shadow: 0 0 0 2px var(--button-bg);
 }
 
@@ -142,8 +141,19 @@ input:focus {
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    color: var(--placeholder-color);
-    transition: color 0.3s;
+    color: var(--placeholder-color); /* Color por defecto */
+    transition: color 0.3s ease, background-color 0.3s ease; /* Transición más suave */
+    padding: 5px; /* Añadir padding para un área de clic más cómoda */
+    border-radius: 4px; /* Bordes ligeramente redondeados */
+}
+
+.password-toggle:hover {
+    color: var(--text-color); /* Color más oscuro en hover */
+    /* Eliminamos el background-color para evitar cambios visuales bruscos al hacer hover o al cambiar el ícono. */
+}
+
+.password-toggle svg {
+    display: block; /* Asegura que el SVG no tenga espacio extra */
 }
 
 .login-button {

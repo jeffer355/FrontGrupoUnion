@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // Added ChangeDetectorRef
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -24,7 +24,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef // Injected ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -77,12 +78,14 @@ export class LoginComponent implements OnInit {
           console.error('Error de inicio de sesión:', err);
           // Usar el mensaje de error del backend si está disponible, de lo contrario, un mensaje genérico.
           this.errorMessage = err.error?.message || 'Error de inicio de sesión. Por favor, inténtalo de nuevo.';
+          console.log('Mensaje de error asignado:', this.errorMessage);
+          this.cdr.detectChanges(); // Force change detection
         }
       });
     } else {
       // Marcar todos los campos como "touched" para mostrar los errores de validación
       this.loginForm.markAllAsTouched();
-      this.errorMessage = 'Por favor, completa correctamente todos los campos.';
+      // Ya no se establece un errorMessage genérico aquí, se confía en los mensajes específicos de los campos.
     }
   }
 }
