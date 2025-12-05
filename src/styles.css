@@ -1,1 +1,32 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Variables de color para un manejo de temas más fácil */
+:root {
+    --dark-bg: #1f2125;
+    --input-bg: #292a2f;
+    --text-color: #f0f0f0;
+    --placeholder-color: #9da0a5;
+    --link-color: #55a0f0;
+    --button-bg: #0066ff;
+    --button-hover-bg: #0056e6;
+    --illustration-bg: #f4f6fc;
+}
+
+/* Base Reset y Estructura (Sin cambios) */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #000;
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    min-height: 100vh;
+    width: 100vw;
+    overflow-x: hidden;
+}
