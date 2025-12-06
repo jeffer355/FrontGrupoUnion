@@ -1,1 +1,96 @@
-<p>admin-dashboard works!</p>
+<div class="layout-wrapper">
+  <div class="sidebar sidebar-admin" [class.active]="isSidebarActive" id="sidebar">
+    <div>
+      <div class="sidebar-header">
+        <img src="assets/images/logo-test.png" alt="Logo Grupo Unión" class="sidebar-logo">
+        <span>Grupo Unión</span>
+      </div>
+
+      <div class="profile-info">
+        <img src="assets/images/user-avatar.webp" alt="Foto de perfil">
+        <h3>Juan</h3> <!-- Generic Admin User Profile -->
+        <a href="javascript:void(0)">Ver perfil</a>
+      </div>
+
+      <nav>
+        <ul>
+          <li><a routerLink="/admin-dashboard" class="nav-link active"><i class="fas fa-home"></i> Principal</a></li>
+          <li><a href="javascript:void(0)" class="nav-link"><i class="fas fa-users"></i> Usuarios</a></li>
+          <li><a href="javascript:void(0)" class="nav-link"><i class="fas fa-building"></i> Áreas</a></li>
+          <li><a href="javascript:void(0)" class="nav-link"><i class="fas fa-user-tie"></i> Empleados</a></li>
+          <li><a href="javascript:void(0)" class="nav-link"><i class="fas fa-clipboard-check"></i> Asistencias</a></li>
+          <li><a href="javascript:void(0)" class="nav-link"><i class="fas fa-cog"></i> Configuración</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div>
+      <button (click)="logout()" class="logout-button">
+        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+      </button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <button class="menu-toggle" (click)="toggleSidebar()">&#9776;</button>
+        <h1 class="top-bar-title">ADMIN DASHBOARD</h1>
+      </div>
+
+      <div class="top-bar-right">
+        <span class="profile-name">Admin</span>
+        <span class="bell-icon">🔔</span>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <!-- Statistical Cards -->
+      <div class="stats-cards-grid">
+        <div class="stat-card card-users">
+          <div class="card-kpi-number">2</div>
+          <h3>Usuarios</h3>
+          <a href="#">Haz clic</a>
+        </div>
+        <div class="stat-card card-areas">
+          <div class="card-kpi-number">6</div>
+          <h3>Áreas</h3>
+          <a href="#">Haz clic</a>
+        </div>
+        <div class="stat-card card-employees">
+          <div class="card-kpi-number">4</div>
+          <h3>Empleados</h3>
+          <a href="#">Haz clic</a>
+        </div>
+        <div class="stat-card card-attendances">
+          <div class="card-kpi-number">6</div>
+          <h3>Asistencias</h3>
+          <a href="#">Haz clic</a>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="charts-grid">
+        <div class="chart-panel">
+          <div class="chart-panel-header">
+            <h3>Asistencia General</h3>
+            <button class="close-btn">X</button>
+          </div>
+          <div class="chart-content donut-chart-placeholder">
+            <p>Gráfico de Dona aquí (Puntual, Tarde)</p>
+          </div>
+        </div>
+        <div class="chart-panel">
+          <div class="chart-panel-header">
+            <h3>Asistencia Mensual</h3>
+            <button class="close-btn">X</button>
+          </div>
+          <div class="chart-content bar-chart-placeholder">
+            <p>Gráfico de Barras aquí (Marzo, Abril, Mayo, Junio)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
