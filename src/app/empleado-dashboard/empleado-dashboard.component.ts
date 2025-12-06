@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core'; // Added OnInit
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router'; // Import Router
+import { RouterModule } from '@angular/router'; // Asegura importar RouterModule si usas routerLink
+import { AuthService } from '../auth/services/auth.service'; // Importar AuthService
 
-// Define interfaces for data structures
 interface Empleado {
   nombres: string;
   nombreCompleto: string;
@@ -23,21 +23,22 @@ interface Cumpleanos {
 @Component({
   selector: 'app-empleado-dashboard',
   standalone: true,
-  imports: [CommonModule], // Ensure RouterModule is not needed here if it's imported at root
+  imports: [CommonModule, RouterModule], // Añadido RouterModule por si usas routerLink en el HTML
   templateUrl: './empleado-dashboard.component.html',
   styleUrls: ['./empleado-dashboard.component.css']
 })
-export class EmpleadoDashboardComponent implements OnInit { // Implemented OnInit
+export class EmpleadoDashboardComponent implements OnInit {
 
   empleado: Empleado | null = null;
   usuario: Usuario | null = null;
   cumpleanosList: Cumpleanos[] = [];
-  isSidebarActive: boolean = false; // For mobile sidebar toggle
+  isSidebarActive: boolean = false;
 
-  constructor(private router: Router) { } // Inject Router
+  // Inyectar AuthService
+  constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
-    // Initialize with placeholder data (in a real app, this would come from a service)
+    // Datos placeholder (idealmente esto vendría de otro servicio usando el ID del usuario guardado)
     this.empleado = {
       nombres: 'Juan',
       nombreCompleto: 'Juan Pérez García',
@@ -46,6 +47,7 @@ export class EmpleadoDashboardComponent implements OnInit { // Implemented OnIni
       telefono: '+51 987 654 321'
     };
 
+    // Podemos recuperar el username real del authService si quisieras
     this.usuario = {
       username: 'juan.perez@grupounion.com'
     };
@@ -58,13 +60,11 @@ export class EmpleadoDashboardComponent implements OnInit { // Implemented OnIni
   }
 
   logout(): void {
-    console.log('Cerrar sesión clickeado. Redirigiendo a /auth/login');
-    // In a real application, you would also clear authentication tokens/session here
-    this.router.navigate(['/auth/login']);
+    // Usar el servicio para logout limpio
+    this.authService.logout();
   }
 
   toggleSidebar(): void {
     this.isSidebarActive = !this.isSidebarActive;
-    console.log('Sidebar toggled:', this.isSidebarActive);
   }
 }
