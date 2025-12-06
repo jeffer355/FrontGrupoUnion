@@ -1,1 +1,227 @@
-/* Employee Dashboard Component CSS */
+/* Layout Wrapper para simular el body flex */
+.layout-wrapper {
+  display: flex;
+  width: 100vw; /* Asegura que ocupe todo el ancho de la ventana */
+  min-height: 100vh; /* Asegura que ocupe al menos toda la altura de la ventana */
+  overflow-x: hidden; /* Evita barras de desplazamiento horizontal */
+  font-family: sans-serif;
+  background-color: #f4f4f4; /* Fondo general gris claro */
+  /* No es necesario eliminar max-width aquí ya que no está presente */
+}
+
+/* --- Sidebar (Base + Tema Empleado) --- */
+.sidebar {
+  width: 250px;
+  padding: 20px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+  transition: margin-left 0.3s ease;
+  z-index: 1000;
+  background-color: #3969FC; /* Color del tema empleado */
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  margin-bottom: 10px;
+  position: relative;
+  top: -15px;
+}
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.sidebar-header span {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: white;
+}
+
+/* Perfil en Sidebar */
+.sidebar .profile-info {
+  text-align: center;
+  background-color: transparent;
+  padding: 0;
+  box-shadow: none;
+  border-radius: 0;
+  margin-bottom: 20px;
+}
+.sidebar .profile-info img {
+  width: 100px; height: 100px; border-radius: 50%; background-color: #eee; margin-bottom: 10px;
+}
+.sidebar .profile-info h3 {
+  font-size: 1.1rem; margin-bottom: 5px;
+}
+.sidebar .profile-info a {
+  color: lightgray; text-decoration: none; font-size: 0.9em;
+}
+
+/* Navegación */
+nav ul {
+  list-style: none;
+  padding-left: 0;
+  display: inline-block;
+  position: relative;
+  left: 45px; /* Ajuste solicitado */
+}
+nav ul li {
+  text-align: left;
+  margin-bottom: 8px; /* Añadido margen vertical entre ítems */
+}
+
+.list-unstyled {
+  list-style: none;
+  padding-left: 0;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  padding: 10px;
+  display: block;
+  border-radius: 15px; /* Estilo píldora */
+  transition: all 0.3s ease; /* Transición para hover */
+}
+.nav-link:hover, .nav-link.active {
+  background-color: rgba(255,255,255,0.15); /* Fondo sutil en hover */
+  transform: translateX(5px); /* Pequeño movimiento a la derecha en hover */
+}
+
+.logout-button {
+  background: none; border: none; color: white; cursor: pointer; padding: 10px; text-align: left; width: 100%; border-radius: 5px; font-size: 1em;
+}
+.logout-button:hover { background-color: rgba(255,255,255,0.1); }
+
+/* --- Main Content --- */
+.main-content {
+  flex-grow: 1;
+  background-color: #f4f4f4;
+  overflow-y: auto;
+  height: 100vh;
+  padding: 0;
+}
+
+.page-content { padding: 20px; }
+
+/* --- Top Bar (Estilo Empleado) --- */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  color: #333333;
+}
+
+.top-bar-left { display: flex; align-items: center; gap: 15px; }
+
+.top-bar-title {
+  font-size: 1.5em; font-weight: 600; margin: 0; color: #333333;
+}
+
+.top-bar-right { display: flex; align-items: center; }
+
+.profile-name { margin-right: 15px; font-weight: 500; color: #333333; }
+.bell-icon { font-size: 1.5em; cursor: pointer; color: #333333; }
+.menu-toggle {
+  display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: #333333;
+}
+
+/* --- Profile Card (Detalle) --- */
+.profile-card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  border: 1px solid #e0e0e0;
+}
+
+.profile-content-wrapper { display: flex; align-items: center; } /* Wrapper helper */
+
+.profile-avatar-container {
+  width: 120px; height: 120px; min-width: 120px;
+  background-color: #f0f0f0; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-right: 20px; overflow: hidden;
+}
+.profile-avatar-icon { font-size: 4rem; color: #ccc; }
+
+.profile-info-text { flex-grow: 1; margin-right: 20px; }
+.profile-info-text h2,
+.profile-info-text p,
+.profile-info-text li { /* Target h2, p, li within profile-info-text */
+  color: #000000; /* Negro puro */
+}
+.profile-info-text h2 { font-size: 1.25rem; margin-bottom: 3px; font-weight: 600; }
+.profile-info-text p { margin-bottom: 2px; font-size: 0.9rem; } /* Remove old color */
+.profile-info-text .role { color: #000000; } /* Set role to black */
+
+.edit-profile-button {
+  background-color: #e9ecef; border: 1px solid #ced4da; color: #495057;
+  padding: 6px 15px; border-radius: 20px; margin-top: 10px; font-size: 0.9rem;
+  display: inline-flex; align-items: center; text-decoration: none;
+}
+
+/* Decoración Derecha */
+.decorative-image-wrapper {
+  display: flex; align-items: center; justify-content: flex-end;
+  margin-left: auto; flex-shrink: 0;
+}
+.decorative-image-wrapper img {
+  width: 260px !important; height: auto !important;
+  border-radius: 0; background: none; box-shadow: none;
+}
+
+/* --- Dashboard Grids y Cards --- */
+.dashboard-grid {
+  display: grid; grid-template-columns: 2fr 1fr; gap: 20px;
+}
+.info-card {
+  background-color: white; padding: 15px; border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; margin-bottom: 20px;
+}
+.info-card h3,
+.info-card p,
+.info-card li,
+.info-card strong,
+.info-card small,
+.info-card .alert { /* Target all text elements within info-card, including alerts */
+  color: #000000 !important; /* Negro puro, forzar */
+}
+
+/* --- Responsive (Mobile/Tablet) --- */
+@media (max-width: 992px) {
+  .profile-card { flex-direction: column; align-items: center; text-align: center; }
+  .profile-content-wrapper { flex-direction: column; width: 100%; }
+  .profile-avatar-container { margin-right: 0; margin-bottom: 15px; }
+  .profile-info-text { margin-right: 0; width: 100%; }
+  .decorative-image-wrapper { margin-top: 15px; justify-content: center; width: 100%; }
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    width: 80%; max-width: 280px; height: 100vh;
+    position: fixed; top: 0; left: 0;
+    margin-left: -100%; /* Oculto por defecto */
+  }
+  .sidebar.active { margin-left: 0; }
+  
+  .menu-toggle { display: block; }
+  .page-content { padding: 10px; }
+}

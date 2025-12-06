@@ -1,1 +1,128 @@
-<p>empleado-dashboard works!</p>
+<div class="layout-wrapper">
+  <div class="sidebar sidebar-employee" [class.active]="isSidebarActive" id="sidebar">
+    <div>
+      <div class="sidebar-header">
+        <img src="assets/images/logo-test.png" alt="Logo Grupo Unión" class="sidebar-logo">
+        <span>Grupo Unión</span>
+      </div>
+
+      <div class="profile-info">
+        <img src="assets/images/user-avatar.webp" alt="Foto de perfil">
+        <h3>{{ empleado?.nombres || 'Usuario' }}</h3>
+        <a href="javascript:void(0)">Ver perfil</a>
+      </div>
+
+      <nav>
+        <ul>
+          <li><a routerLink="/empleado-dashboard" class="nav-link active"><i class="fas fa-home"></i> Principal</a></li>
+          <li><a routerLink="/empleado/asistencia" class="nav-link"><i class="fas fa-clock"></i> Asistencia</a></li>
+          <li><a href="javascript:void(0)" class="nav-link"><i class="fas fa-receipt"></i> Boletas</a></li>
+          <li><a href="javascript:void(0)" class="nav-link"><i class="fas fa-file-alt"></i> Documentos</a></li>
+          <li><a href="javascript:void(0)" class="nav-link"><i class="fas fa-envelope-open-text"></i> Solicitudes</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div>
+      <button (click)="logout()" class="logout-button">
+        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+      </button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <button class="menu-toggle" (click)="toggleSidebar()">&#9776;</button>
+        <h1 class="top-bar-title">DASHBOARD PRINCIPAL</h1>
+      </div>
+
+      <div class="top-bar-right">
+        <span class="profile-name">{{ usuario?.username || 'empleado' }}</span>
+        <span class="bell-icon">🔔</span>
+      </div>
+    </div>
+
+    <div class="page-content">
+      
+      <div class="profile-card">
+        <div class="d-flex align-items-center flex-grow-1 profile-content-wrapper">
+          <div class="profile-avatar-container">
+            <i class="fas fa-user-circle profile-avatar-icon"></i>
+          </div>
+          <div class="profile-info-text">
+            <h2>{{ empleado?.nombreCompleto || 'NOMBRE EMPLEADO' }}</h2>
+
+            <p class="role" *ngIf="empleado?.cargo">{{ empleado?.cargo }}</p>
+            <p class="role" *ngIf="!empleado?.cargo" style="font-style: italic; color: #dc3545;">Rol no Definido</p>
+
+            <p class="contact">{{ empleado?.email || '' }} | {{ empleado?.telefono || '' }}</p>
+
+            <a href="javascript:void(0)" class="btn btn-sm edit-profile-button">
+              <i class="fas fa-pencil-alt me-2"></i> Editar perfil
+            </a>
+          </div>
+        </div>
+
+        <div class="decorative-image-wrapper">
+          <img src="assets/images/user-avatar-placeholder.png" alt="Decoración">
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        
+        <div class="columna-izquierda">
+          <div class="info-card">
+            <h3 class="text-secondary"><i class="fas fa-birthday-cake me-2"></i> Cumpleaños</h3>
+            <ul class="list-unstyled">
+              <li class="d-flex align-items-center mb-2" *ngFor="let cumple of cumpleanosList">
+                <i class="fas fa-user-circle me-2"></i> {{ cumple.nombre }} 
+                <small class="ms-auto text-muted">{{ cumple.fecha }}</small>
+              </li>
+            </ul>
+          </div>
+
+          <div class="info-card">
+            <h3 class="text-secondary"><i class="fas fa-credit-card me-2"></i> Datos bancarios</h3>
+            <div class="p-2 border rounded mb-2 bg-light">
+              <strong class="text-primary">BBVA</strong>
+              <p class="mb-0 small">Nro. de Cuenta: 999999990001</p>
+              <p class="mb-0 small">CCI: 888899999900000001</p>
+            </div>
+            <div class="p-2 border rounded mb-2 bg-light">
+              <strong class="text-primary">INTERBANK</strong>
+              <p class="mb-0 small">Nro. de Cuenta: 34656990001</p>
+              <p class="mb-0 small">CCI: 002345634900000001</p>
+              <p class="mb-0 small">Cuenta CTS</p>
+            </div>
+            <a href="javascript:void(0)" class="btn btn-sm edit-profile-button mt-2">
+              <i class="fas fa-pencil-alt me-2"></i> Editar perfil
+            </a>
+          </div>
+        </div>
+
+        <div class="columna-derecha">
+          <div class="info-card">
+            <h3 class="text-secondary"><i class="fas fa-clipboard-list me-2"></i> Notas y políticas</h3>
+            <ul class="list-unstyled small">
+              <li class="d-flex align-items-start mb-2"><i class="fas fa-bookmark me-2 mt-1"></i> Las boletas de pago estarán disponibles...</li>
+              <li class="d-flex align-items-start mb-2"><i class="fas fa-bookmark me-2 mt-1"></i> El cierre de planilla es el día 30...</li>
+              <li class="d-flex align-items-start mb-2"><i class="fas fa-bookmark me-2 mt-1"></i> Horario RRHH: 08:30 a.m. a 05:00 p.m.</li>
+            </ul>
+          </div>
+
+          <div class="info-card">
+            <h3 class="text-secondary"><i class="fas fa-headset me-2"></i> Datos de contacto - RRHH</h3>
+            <p class="mb-1"><strong>Nombre:</strong> Jaqueline Gonzalez Timero</p>
+            <p class="mb-1"><strong>Correo:</strong> rrhh @grupounion.com</p>
+            <p class="mb-1"><strong>Celular:</strong> +51 958 958 555</p>
+            <div class="alert alert-info py-1 px-2 mt-3 mb-0 small text-center">
+              <i class="fas fa-clock me-1"></i> Atención: 08:30-17:00 L-V
+            </div>
+          </div>
+        </div>
+
+      </div> </div>
+  </div>
+</div>
