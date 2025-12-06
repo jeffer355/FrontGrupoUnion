@@ -1,56 +1,76 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router'; // Asegura importar RouterModule si usas routerLink
-import { AuthService } from '../auth/services/auth.service'; // Importar AuthService
+import { RouterModule } from '@angular/router';
+import { AuthService } from '../auth/services/auth.service';
+import { DashboardService } from '../services/dashboard.service';
 
-interface Empleado {
+// Interfaz ajustada
+interface EmpleadoData {
   nombres: string;
   nombreCompleto: string;
   cargo: string;
   email: string;
   telefono: string;
-}
-
-interface Usuario {
-  username: string;
-}
-
-interface Cumpleanos {
-  nombre: string;
-  fecha: string;
+  departamento?: string;
 }
 
 @Component({
   selector: 'app-empleado-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule], // Añadido RouterModule por si usas routerLink en el HTML
+  imports: [CommonModule, RouterModule],
   templateUrl: './empleado-dashboard.component.html',
   styleUrls: ['./empleado-dashboard.component.css']
 })
 export class EmpleadoDashboardComponent implements OnInit {
 
-  empleado: Empleado | null = null;
-  usuario: Usuario | null = null;
-  cumpleanosList: Cumpleanos[] = [];
+  empleado: EmpleadoData | null = null;
+  usuario: { username: string } | null = null;
+  cumpleanosList: any[] = [];
   isSidebarActive: boolean = false;
 
-  // Inyectar AuthService
-  constructor(private authService: AuthService) { }
+  constructor(
+    private authService: AuthService,
+    private dashboardService: DashboardService,
+    private cdr: ChangeDetectorRef 
+  ) { }
 
   ngOnInit(): void {
-    // Datos placeholder (idealmente esto vendría de otro servicio usando el ID del usuario guardado)
-    this.empleado = {
-      nombres: 'Juan',
-      nombreCompleto: 'Juan Pérez García',
-      cargo: 'Desarrollador Frontend',
-      email: 'juan.perez@grupounion.com',
-      telefono: '+51 987 654 321'
-    };
+    const username = this.authService.getUserName();
+    if (username) {
+      this.usuario = { username: username };
+    }
 
-    // Podemos recuperar el username real del authService si quisieras
-    this.usuario = {
-      username: 'juan.perez@grupounion.com'
-    };
+    this.dashboardService.getEmpleadoData().subscribe({
+      next: (data) => {
+        console.log('Datos Empleado recibidos:', data);
+
+        this.empleado = {
+          nombres: data.nombres,
+          nombreCompleto: data.nombres, 
+          cargo: data.cargo,
+          email: data.email,
+          telefono: data.telefono,
+          // Asegúrate que tu backend envíe 'departamento' o 'area'
+          departamento: data.departamento 
+        };
+        
+        // FORZAR ACTUALIZACIÓN DE VISTA
+        this.cdr.detectChanges(); 
+      },
+      error: (err) => {
+        console.error('Error cargando empleado:', err);
+        // Datos de respaldo
+        this.empleado = {
+          nombres: 'Usuario Offline',
+          nombreCompleto: 'Usuario Offline',
+          cargo: 'Sin conexión',
+          email: 'error@sistema',
+          telefono: '000-000',
+          departamento: 'Desconectado' // Agregado para consistencia
+        };
+        this.cdr.detectChanges(); 
+      }
+    });
 
     this.cumpleanosList = [
       { nombre: 'María Lopez', fecha: '15 Ene' },
@@ -60,7 +80,6 @@ export class EmpleadoDashboardComponent implements OnInit {
   }
 
   logout(): void {
-    // Usar el servicio para logout limpio
     this.authService.logout();
   }
 

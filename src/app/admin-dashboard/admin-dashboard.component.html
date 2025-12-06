@@ -6,10 +6,13 @@
         <span>Grupo Unión</span>
       </div>
 
-      <div class="profile-info">
+<div class="profile-info">
         <img src="assets/images/user-avatar.webp" alt="Foto de perfil">
-        <h3>Juan</h3> <!-- Generic Admin User Profile -->
-        <a href="javascript:void(0)">Ver perfil</a>
+        <h3>{{ adminName }}</h3>
+        
+        <a href="javascript:void(0)" style="cursor: default;">
+           {{ adminArea || 'Administración' }}
+        </a>
       </div>
 
       <nav>

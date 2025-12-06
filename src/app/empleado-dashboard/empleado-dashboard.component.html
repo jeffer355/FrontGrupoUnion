@@ -9,7 +9,10 @@
       <div class="profile-info">
         <img src="assets/images/user-avatar.webp" alt="Foto de perfil">
         <h3>{{ empleado?.nombres || 'Usuario' }}</h3>
-        <a href="javascript:void(0)">Ver perfil</a>
+        
+        <a href="javascript:void(0)" style="cursor: default; text-decoration: none; color: rgba(255,255,255,0.7);">
+           {{ empleado?.departamento || 'Sin Área Asignada' }}
+        </a>
       </div>
 
       <nav>
@@ -60,7 +63,7 @@
             <p class="contact">{{ empleado?.email || '' }} | {{ empleado?.telefono || '' }}</p>
 
             <a href="javascript:void(0)" class="btn btn-sm edit-profile-button">
-              <i class="fas fa-pencil-alt me-2"></i> Editar perfil
+              <i class="fas fa-pencil-alt me-2"></i> Ver perfil
             </a>
           </div>
         </div>
