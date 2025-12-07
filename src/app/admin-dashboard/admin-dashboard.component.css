@@ -1,4 +1,4 @@
-/* Inherit general layout styling from empleado-dashboard */
+/* Inherit general layout styling */
 .layout-wrapper {
   display: flex;
   width: 100vw;
@@ -19,7 +19,7 @@
   flex-shrink: 0;
   transition: margin-left 0.3s ease;
   z-index: 1000;
-  background-color: #e60000; /* SOLID RED for Admin Sidebar */
+  background-color: #e60000; /* ROJO SÓLIDO */
 }
 
 .sidebar-header {
@@ -85,6 +85,7 @@ nav ul li {
   display: block;
   border-radius: 15px;
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 .nav-link:hover, .nav-link.active {
   background-color: rgba(255,255,255,0.15);
@@ -133,7 +134,7 @@ nav ul li {
   display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: #333333;
 }
 
-/* New: Statistical Cards Grid */
+/* --- ESTILOS DE LAS TARJETAS (HOME) --- */
 .stats-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -149,22 +150,22 @@ nav ul li {
   text-align: center;
   color: white;
   position: relative;
-  overflow: hidden; /* For the KPI number positioning */
+  overflow: hidden; 
 }
 
 .stat-card .card-kpi-number {
   position: absolute;
-  top: -10px; /* Adjust as needed */
-  left: 10px; /* Adjust as needed */
-  font-size: 4em; /* Large number */
+  top: -10px; 
+  left: 10px; 
+  font-size: 4em; 
   font-weight: bold;
-  color: rgba(255, 255, 255, 0.3); /* Slightly transparent white */
+  color: rgba(255, 255, 255, 0.3); 
   z-index: 1;
 }
 
 .stat-card h3 {
-  font-size: 1em; /* Small title */
-  margin-top: 30px; /* Space for KPI number */
+  font-size: 1em; 
+  margin-top: 30px; 
   margin-bottom: 10px;
   color: white;
   position: relative;
@@ -179,6 +180,7 @@ nav ul li {
   text-align: center;
   position: relative;
   z-index: 2;
+  cursor: pointer;
 }
 .stat-card a:hover {
   color: white;
@@ -191,71 +193,145 @@ nav ul li {
 .stat-card.card-employees { background-color: #00bcd4; } /* Turquoise */
 .stat-card.card-attendances { background-color: #303f9f; } /* Dark Blue */
 
+/* --- ESTILOS MODERNOS PARA TABLAS (CRUD) --- */
 
-/* New: Charts Grid */
-.charts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
+.crud-container {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    animation: fadeIn 0.4s ease-in-out;
 }
 
-.chart-panel {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  overflow: hidden; /* For rounded corners on header */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.chart-panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 15px;
-  background-color: #5bc0de; /* Example color for chart panel header */
-  color: white;
+.crud-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.crud-header h2 { margin: 0; font-size: 1.5rem; color: #333; }
+
+.btn-add {
+    background-color: #e60000; /* Rojo Admin */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-add:hover { background-color: #cc0000; }
+
+.search-input {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 250px;
+    outline: none;
 }
 
-.chart-panel-header h3 {
-  margin: 0;
-  font-size: 1.1em;
-  color: white;
+/* Tabla Moderna */
+.modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px; /* Espacio entre filas */
 }
 
-.chart-panel-header .close-btn {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.2em;
-  cursor: pointer;
-  padding: 0 5px;
-}
-.chart-panel-header .close-btn:hover {
-  color: #f0f0f0;
+.modern-table thead th {
+    text-align: left;
+    padding: 15px;
+    color: #888;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #f0f0f0;
 }
 
-.chart-content {
-  padding: 20px;
-  text-align: center;
+.modern-table tbody tr {
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.donut-chart-placeholder, .bar-chart-placeholder {
-  min-height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f8f8f8;
-  border: 1px dashed #ccc;
-  color: #888;
-  border-radius: 5px;
+.modern-table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
 }
 
-/* --- Responsive (Mobile/Tablet) --- */
-@media (max-width: 992px) {
-  .stats-cards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  }
+.modern-table td {
+    padding: 15px;
+    vertical-align: middle;
+    color: #333;
+    border-top: 1px solid #f9f9f9;
+    border-bottom: 1px solid #f9f9f9;
 }
 
+.modern-table td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; border-left: 1px solid #f9f9f9; }
+.modern-table td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-right: 1px solid #f9f9f9; }
+
+/* Badges y Avatares */
+.user-cell { display: flex; align-items: center; gap: 10px; }
+.user-avatar-small {
+    width: 35px; height: 35px;
+    background-color: #e60000;
+    color: white;
+    border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    font-weight: bold; font-size: 0.9rem;
+}
+
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.badge-role { background-color: #eef2ff; color: #4338ca; }
+.badge-active { background-color: #dcfce7; color: #166534; }
+.badge-inactive { background-color: #fee2e2; color: #991b1b; }
+
+/* Botones de acción */
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin-right: 10px;
+    transition: color 0.2s;
+}
+.action-btn.edit { color: #3b82f6; }
+.action-btn.delete { color: #ef4444; }
+
+/* Modal Simple Styles */
+.modal-backdrop {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 2000;
+}
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 400px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+.modal-actions {
+    display: flex; justify-content: flex-end; gap: 10px;
+}
+.btn-save { background: #e60000; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; }
+.btn-cancel { background: #eee; color: #333; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; }
+
+/* Responsive */
 @media (max-width: 600px) {
   .sidebar.sidebar-admin {
     width: 80%; max-width: 280px; height: 100vh;
@@ -263,11 +339,6 @@ nav ul li {
     margin-left: -100%;
   }
   .sidebar.active { margin-left: 0; }
-  
   .menu-toggle { display: block; }
   .page-content { padding: 10px; }
-
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
 }
