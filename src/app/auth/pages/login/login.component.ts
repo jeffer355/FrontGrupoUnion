@@ -70,11 +70,11 @@ export class LoginComponent implements OnInit {
           // Si el backend nos manda a la ruta vieja "/admin-dashboard",
           // nosotros lo corregimos aquí mismo a "/admin"
           if (response.role === 'ADMIN') {
-              urlDestino = '/admin'; 
-          } 
-          else if (response.role === 'EMPLEADO') {
-              urlDestino = '/empleado-dashboard'; 
-          }
+    urlDestino = '/admin/home'; // <--- CAMBIO AQUÍ: Añadir /home
+} 
+else if (response.role === 'EMPLEADO') {
+    urlDestino = '/empleado-dashboard'; 
+}
 
           // Navegamos a la URL correcta
           this.router.navigate([urlDestino]); 
