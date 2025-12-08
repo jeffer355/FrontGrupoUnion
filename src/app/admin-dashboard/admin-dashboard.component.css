@@ -379,3 +379,58 @@ input:checked + .slider:before {
     background-color: #fef2f2;
 }
 
+
+
+
+/* --- BARRA DE HERRAMIENTAS (BUSCADOR Y EXPORTAR) --- */
+.toolbar {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.search-input-table {
+    padding: 8px 15px 8px 35px; /* Espacio para el icono */
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    width: 250px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.search-input-table:focus {
+    border-color: #e60000;
+    box-shadow: 0 0 5px rgba(230,0,0,0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 0.9rem;
+}
+
+/* BOTONES DE EXPORTAR */
+.btn-export {
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: transform 0.2s;
+}
+
+.btn-export:hover { transform: translateY(-2px); }
+
+.btn-excel { background-color: #10b981; } /* Verde Excel */
+.btn-pdf { background-color: #ef4444; }   /* Rojo PDF */

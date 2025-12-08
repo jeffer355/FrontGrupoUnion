@@ -4,6 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { AdminCrudService } from '../../../services/admin-crud.service';
 import Swal from 'sweetalert2';
 
+// Importaciones para exportar
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 @Component({
   selector: 'app-admin-empleados',
   standalone: true,
@@ -12,24 +17,44 @@ import Swal from 'sweetalert2';
     <div class="crud-container fade-in">
         <div class="crud-header">
             <h2>Gestión de Empleados</h2>
-            <button class="btn-add" (click)="openModal('crear')"><i class="fas fa-plus"></i> Nuevo Empleado</button>
+            
+            <div class="toolbar">
+                <div class="search-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" 
+                           placeholder="Buscar empleado..." 
+                           class="search-input-table"
+                           [(ngModel)]="searchText"
+                           (keyup)="filtrar()">
+                </div>
+
+                <button class="btn-export btn-excel" (click)="exportarExcel()" title="Descargar Excel">
+                    <i class="fas fa-file-excel"></i> Excel
+                </button>
+                <button class="btn-export btn-pdf" (click)="exportarPDF()" title="Descargar PDF">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
+
+                <button class="btn-add" (click)="openModal('crear')">
+                    <i class="fas fa-plus"></i> Nuevo
+                </button>
+            </div>
         </div>
+
         <div class="table-responsive">
             <table class="modern-table">
                 <thead>
                     <tr><th>Nombre</th><th>Documento</th><th>Departamento</th><th>Cargo</th><th>Estado</th><th>Acciones</th></tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let emp of listaEmpleados">
+                    <tr *ngFor="let emp of listaFiltrada">
                         <td><div style="font-weight:bold;">{{ emp.persona?.nombres }}</div><small>{{ emp.persona?.email }}</small></td>
                         <td>{{ emp.persona?.nroDocumento }}</td>
                         <td>{{ emp.departamento?.nombre }}</td>
                         <td>{{ emp.cargo?.nombre }}</td>
                         <td>
                              <label class="switch">
-                                <input type="checkbox" 
-                                       [checked]="emp.estado === 'ACTIVO'" 
-                                       (change)="toggleEstado(emp)">
+                                <input type="checkbox" [checked]="emp.estado === 'ACTIVO'" (change)="toggleEstado(emp)">
                                 <span class="slider"></span>
                             </label>
                             <span class="switch-label">{{ emp.estado }}</span>
@@ -39,6 +64,9 @@ import Swal from 'sweetalert2';
                             <button class="action-btn edit" (click)="openModal('editar', emp)"><i class="fas fa-pen"></i></button>
                             <button class="action-btn delete" (click)="deleteEmpleado(emp.idEmpleado)"><i class="fas fa-trash"></i></button>
                         </td>
+                    </tr>
+                    <tr *ngIf="listaFiltrada.length === 0">
+                        <td colspan="6" style="text-align: center; padding: 20px; color: #666;">No se encontraron empleados.</td>
                     </tr>
                 </tbody>
             </table>
@@ -94,14 +122,11 @@ import Swal from 'sweetalert2';
         </div>
     </div>
   `,
-  // ESTILOS INCRUSTADOS PARA ASEGURAR QUE SE VEA BIEN
   styles: [`
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
     .section-title { color: #e60000; font-size: 0.9rem; font-weight: bold; border-bottom: 2px solid #f9f9f9; padding-bottom: 5px; margin-bottom: 15px; }
     .form-row { display: flex; gap: 15px; } .half { flex: 1; }
     .scrollable-modal { width: 800px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
-    
-    /* Estilos del Switch */
     .switch { position: relative; display: inline-block; width: 44px; height: 24px; margin-right: 10px; vertical-align: middle; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
@@ -109,60 +134,141 @@ import Swal from 'sweetalert2';
     input:checked + .slider { background-color: #10b981; }
     input:checked + .slider:before { transform: translateX(20px); }
     .switch-label { font-size: 0.8rem; font-weight: 600; color: #555; vertical-align: middle; }
-
     @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
   `],
   styleUrls: ['../../admin-dashboard.component.css']
 })
 export class AdminEmpleadosComponent implements OnInit {
-  listaEmpleados: any[] = []; listaAreas: any[] = []; listaTiposDoc: any[] = [];
+  listaEmpleados: any[] = [];
+  listaFiltrada: any[] = [];
+  searchText: string = '';
+  
+  listaAreas: any[] = []; listaTiposDoc: any[] = [];
   showModal = false; showDetailModal = false; isEditMode = false;
   tempItem: any = this.initEmpty(); selectedItem: any = null;
 
   constructor(private service: AdminCrudService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
-    this.service.getEmpleados().subscribe(d => { this.listaEmpleados = d; this.cdr.detectChanges(); });
+    this.service.getEmpleados().subscribe(d => { 
+        this.listaEmpleados = d; 
+        this.filtrar(); 
+        this.cdr.detectChanges(); 
+    });
     this.service.getAreas().subscribe(d => this.listaAreas = d);
     this.service.getTiposDocumento().subscribe(d => this.listaTiposDoc = d);
   }
 
-  toggleEstado(emp: any) {
-      const nuevoEstado = emp.estado === 'ACTIVO' ? 'CESADO' : 'ACTIVO';
-      emp.estado = nuevoEstado; // Cambio visual inmediato
-      this.service.updateEmpleado({...emp}).subscribe({
-          error: () => {
-              emp.estado = (nuevoEstado === 'ACTIVO') ? 'CESADO' : 'ACTIVO'; // Revertir
-              Swal.fire('Error', 'No se pudo actualizar', 'error');
-          }
-      });
-  }
-
-  initEmpty() { return { persona: { nombres: '', nroDocumento: '', fechaNac: '', telefono: '', email: '', direccion: '', tipoDocumento: { idTipoDoc: 1 } }, departamento: { idDepartamento: null }, cargo: { idCargo: 1 }, fechaIngreso: new Date().toISOString().split('T')[0], estado: 'ACTIVO' }; }
-
-  openModal(mode: 'crear'|'editar', item?: any) {
-      this.isEditMode = mode === 'editar';
-      this.tempItem = this.isEditMode ? JSON.parse(JSON.stringify(item)) : this.initEmpty();
-      if(this.isEditMode) {
-          if(this.tempItem.persona.fechaNac) this.tempItem.persona.fechaNac = this.tempItem.persona.fechaNac.split('T')[0];
-          if(this.tempItem.fechaIngreso) this.tempItem.fechaIngreso = this.tempItem.fechaIngreso.split('T')[0];
+  filtrar() {
+      if (!this.searchText) {
+          this.listaFiltrada = this.listaEmpleados;
+      } else {
+          const texto = this.searchText.toLowerCase();
+          this.listaFiltrada = this.listaEmpleados.filter(e => 
+              e.persona?.nombres.toLowerCase().includes(texto) ||
+              e.persona?.nroDocumento.includes(texto) ||
+              e.departamento?.nombre.toLowerCase().includes(texto)
+          );
       }
-      this.showModal = true;
   }
 
-  guardarEmpleado() {
-      if(!this.tempItem.persona.nombres || !this.tempItem.departamento.idDepartamento) { Swal.fire('Atención', 'Complete los datos obligatorios', 'warning'); return; }
-      const req = this.isEditMode ? this.service.updateEmpleado(this.tempItem) : this.service.createEmpleado(this.tempItem);
-      req.subscribe({ next: () => { this.ngOnInit(); this.closeModal(); Swal.fire('Éxito', 'Guardado correctamente', 'success'); }, error: (e) => Swal.fire('Error', e.error?.message, 'error') });
-  }
+  // --- EXPORTAR EXCEL MEJORADO (AUTO-ANCHO) ---
+  exportarExcel() {
+      if (this.listaFiltrada.length === 0) {
+          Swal.fire('Atención', 'No hay datos para exportar', 'info');
+          return;
+      }
 
-  deleteEmpleado(id: number) {
-      Swal.fire({ title: '¿Eliminar?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then((r) => {
-          if(r.isConfirmed) this.service.deleteEmpleado(id).subscribe(() => this.ngOnInit());
+      // 1. Mapeo de datos (Limpieza)
+      const datosParaExcel = this.listaFiltrada.map(e => ({
+          'Nombre Completo': e.persona?.nombres,
+          'DNI': e.persona?.nroDocumento,
+          'Email': e.persona?.email,
+          'Departamento': e.departamento?.nombre,
+          'Cargo': e.cargo?.nombre,
+          'Fecha Ingreso': e.fechaIngreso,
+          'Estado': e.estado
+      }));
+
+      // 2. Crear Hoja de Trabajo
+      const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(datosParaExcel);
+
+      // 3. CALCULAR ANCHO DE COLUMNAS (Auto-Size)
+      // Obtenemos las llaves (encabezados)
+      const keys = Object.keys(datosParaExcel[0]);
+      
+      // Calculamos el ancho máximo para cada columna
+      const columnWidths = keys.map(key => {
+          // Empezamos con el largo del encabezado
+          let maxLength = key.length;
+
+          // Revisamos cada fila para ver si el contenido es más largo
+          datosParaExcel.forEach(row => {
+              const value = (row as any)[key] ? (row as any)[key].toString() : "";
+              if (value.length > maxLength) {
+                  maxLength = value.length;
+              }
+          });
+
+          // Retornamos el objeto de ancho (+2 para un poco de aire)
+          return { wch: maxLength + 3 };
       });
+
+      // Asignamos los anchos a la hoja
+      ws['!cols'] = columnWidths;
+
+      // 4. Guardar Archivo
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Empleados');
+      XLSX.writeFile(wb, 'Reporte_Empleados_GrupoUnion.xlsx');
   }
 
-  verDetalles(item: any) { this.selectedItem = item; this.showDetailModal = true; }
-  closeModal() { this.showModal = false; }
-  closeDetailModal() { this.showDetailModal = false; }
+  // --- EXPORTAR PDF ---
+  exportarPDF() {
+      if (this.listaFiltrada.length === 0) {
+          Swal.fire('Atención', 'No hay datos para exportar', 'info');
+          return;
+      }
+      const doc = new jsPDF();
+      doc.setFontSize(18);
+      doc.text('Reporte de Empleados - Grupo Unión', 14, 20);
+      doc.setFontSize(10);
+      doc.text('Fecha: ' + new Date().toLocaleDateString(), 14, 28);
+
+      const columnas = [['Nombre', 'DNI', 'Departamento', 'Cargo', 'Estado']];
+      const data = this.listaFiltrada.map(e => [
+          e.persona?.nombres,
+          e.persona?.nroDocumento,
+          e.departamento?.nombre,
+          e.cargo?.nombre,
+          e.estado
+      ]);
+
+      autoTable(doc, {
+          head: columnas,
+          body: data,
+          startY: 35,
+          theme: 'grid',
+          headStyles: { fillColor: [230, 0, 0] }
+      });
+
+      doc.save('Reporte_Empleados.pdf');
+  }
+
+  // ... RESTO DE FUNCIONES IGUALES ...
+  toggleEstado(e:any){
+      const n=e.estado==='ACTIVO'?'CESADO':'ACTIVO'; e.estado=n;
+      this.service.updateEmpleado({...e}).subscribe({error:()=>e.estado=n==='ACTIVO'?'CESADO':'ACTIVO'});
+  }
+  initEmpty(){ return { persona:{nombres:'', nroDocumento:'', fechaNac:'', telefono:'', email:'', direccion:'', tipoDocumento:{idTipoDoc:1}}, departamento:{idDepartamento:null}, cargo:{idCargo:1}, fechaIngreso:new Date().toISOString().split('T')[0], estado:'ACTIVO'} }
+  openModal(m:any,i?:any){ this.isEditMode=m==='editar'; this.tempItem=i?JSON.parse(JSON.stringify(i)):this.initEmpty(); if(this.isEditMode){if(this.tempItem.persona.fechaNac)this.tempItem.persona.fechaNac=this.tempItem.persona.fechaNac.split('T')[0]; if(this.tempItem.fechaIngreso)this.tempItem.fechaIngreso=this.tempItem.fechaIngreso.split('T')[0];} this.showModal=true; }
+  guardarEmpleado(){ 
+      if(!this.tempItem.persona.nombres || !this.tempItem.departamento.idDepartamento){Swal.fire('Atención','Complete datos','warning');return;}
+      const req=this.isEditMode?this.service.updateEmpleado(this.tempItem):this.service.createEmpleado(this.tempItem);
+      req.subscribe({next:()=>{this.ngOnInit();this.closeModal();Swal.fire('Éxito','Guardado','success');},error:(e)=>Swal.fire('Error',e.error?.message,'error')});
+  }
+  deleteEmpleado(id:number){ Swal.fire({title:'¿Eliminar?',icon:'warning',showCancelButton:true,confirmButtonColor:'#d33'}).then((r)=>{if(r.isConfirmed)this.service.deleteEmpleado(id).subscribe(()=>this.ngOnInit())}); }
+  verDetalles(i:any){this.selectedItem=i;this.showDetailModal=true;}
+  closeModal(){this.showModal=false;}
+  closeDetailModal(){this.showDetailModal=false;}
 }
