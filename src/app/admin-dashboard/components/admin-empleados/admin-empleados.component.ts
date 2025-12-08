@@ -25,15 +25,19 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
                         <td>{{ emp.departamento?.nombre }}</td>
                         <td>{{ emp.cargo?.nombre }}</td>
                         <td>
-                             <span class="badge" [ngClass]="emp.estado === 'ACTIVO' ? 'badge-active' : 'badge-inactive'"
-                                   (click)="toggleEstado(emp)" style="cursor: pointer;">
+                             <span class="badge badge-clickable" 
+                                   [ngClass]="emp.estado === 'ACTIVO' ? 'badge-active' : 'badge-inactive'"
+                                   (click)="toggleEstado(emp)" 
+                                   title="Clic para cambiar estado">
                                 {{ emp.estado }}
                             </span>
                         </td>
                         <td>
-                            <button class="action-btn view" (click)="verDetalles(emp)"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn edit" (click)="openModal('editar', emp)"><i class="fas fa-pen"></i></button>
-                            <button class="action-btn delete" (click)="deleteEmpleado(emp.idEmpleado)"><i class="fas fa-trash"></i></button>
+                            <div style="display: flex; gap: 5px;">
+                                <button class="action-btn view" (click)="verDetalles(emp)"><i class="fas fa-eye"></i></button>
+                                <button class="action-btn edit" (click)="openModal('editar', emp)"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn delete" (click)="deleteEmpleado(emp.idEmpleado)"><i class="fas fa-trash"></i></button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -43,7 +47,6 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
         <div class="modal-backdrop" *ngIf="showModal">
             <div class="modal-content scrollable-modal">
                 <h3>{{ isEditMode ? 'Editar Empleado' : 'Nuevo Empleado' }}</h3>
-                
                 <div class="form-grid">
                     <div class="form-column">
                         <h4 class="section-title">Datos Personales</h4>
@@ -59,7 +62,6 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
                         <div class="form-group"><label>Fecha Nac.</label><input type="date" [(ngModel)]="tempItem.persona.fechaNac" class="search-input full-width"></div>
                         <div class="form-group"><label>Teléfono</label><input type="text" [(ngModel)]="tempItem.persona.telefono" class="search-input full-width"></div>
                     </div>
-                    
                     <div class="form-column">
                         <h4 class="section-title">Datos Laborales</h4>
                         <div class="form-group"><label>Dirección</label><input type="text" [(ngModel)]="tempItem.persona.direccion" class="search-input full-width"></div>
@@ -72,7 +74,6 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
                         <div class="form-group"><label>Fecha Ingreso</label><input type="date" [(ngModel)]="tempItem.fechaIngreso" class="search-input full-width"></div>
                     </div>
                 </div>
-
                 <div class="modal-actions">
                     <button (click)="closeModal()" class="btn-cancel">Cancelar</button>
                     <button (click)="guardarEmpleado()" class="btn-save">Guardar</button>
@@ -84,8 +85,8 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
             <div class="modal-content">
                 <h3>Ficha del Empleado</h3>
                 <div class="detail-row"><strong>Nombre:</strong> {{ selectedItem?.persona?.nombres }}</div>
-                <div class="detail-row"><strong>DNI:</strong> {{ selectedItem?.persona?.nroDocumento }}</div>
                 <div class="detail-row"><strong>Email:</strong> {{ selectedItem?.persona?.email }}</div>
+                <div class="detail-row"><strong>Teléfono:</strong> {{ selectedItem?.persona?.telefono }}</div>
                 <div class="detail-row"><strong>Departamento:</strong> {{ selectedItem?.departamento?.nombre }}</div>
                 <div class="detail-row"><strong>Estado:</strong> {{ selectedItem?.estado }}</div>
                 <div class="modal-actions"><button (click)="closeDetailModal()" class="btn-save">Cerrar</button></div>
@@ -93,6 +94,13 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
         </div>
     </div>
   `,
+  styles: [`
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    .section-title { color: #e60000; font-size: 0.9rem; font-weight: bold; border-bottom: 2px solid #f9f9f9; padding-bottom: 5px; margin-bottom: 15px; }
+    .form-row { display: flex; gap: 15px; } .half { flex: 1; }
+    .scrollable-modal { width: 800px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+    @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+  `],
   styleUrls: ['../../admin-dashboard.component.css']
 })
 export class AdminEmpleadosComponent implements OnInit {
@@ -106,6 +114,24 @@ export class AdminEmpleadosComponent implements OnInit {
     this.service.getEmpleados().subscribe(d => { this.listaEmpleados = d; this.cdr.detectChanges(); });
     this.service.getAreas().subscribe(d => this.listaAreas = d);
     this.service.getTiposDocumento().subscribe(d => this.listaTiposDoc = d);
+  }
+
+  // LOGICA ACTIVAR/DESACTIVAR (STRING)
+  toggleEstado(emp: any) {
+      const estadoActual = emp.estado; 
+      // Si es ACTIVO pasa a CESADO, sino a ACTIVO
+      const nuevoEstado = (estadoActual === 'ACTIVO') ? 'CESADO' : 'ACTIVO';
+      const accion = (nuevoEstado === 'ACTIVO') ? 'ACTIVAR' : 'CESAR';
+
+      if(confirm(`¿Desea ${accion} al empleado ${emp.persona.nombres}?`)) {
+          // Clonamos objeto completo y cambiamos solo el estado
+          const empActualizado = { ...emp, estado: nuevoEstado };
+          
+          this.service.updateEmpleado(empActualizado).subscribe({
+              next: () => this.ngOnInit(), // Recargar tabla
+              error: (err) => alert("Error al cambiar estado")
+          });
+      }
   }
 
   initEmpty() { return { persona: { nombres: '', nroDocumento: '', fechaNac: '', telefono: '', email: '', direccion: '', tipoDocumento: { idTipoDoc: 1 } }, departamento: { idDepartamento: null }, cargo: { idCargo: 1 }, fechaIngreso: new Date().toISOString().split('T')[0], estado: 'ACTIVO' }; }
@@ -123,12 +149,7 @@ export class AdminEmpleadosComponent implements OnInit {
   guardarEmpleado() {
       if(!this.tempItem.persona.nombres || !this.tempItem.departamento.idDepartamento) { alert("Complete datos"); return; }
       const req = this.isEditMode ? this.service.updateEmpleado(this.tempItem) : this.service.createEmpleado(this.tempItem);
-      req.subscribe({ next: () => { this.ngOnInit(); this.closeModal(); alert("Guardado"); }, error: (e) => alert(e.error?.message || "Error") });
-  }
-
-  toggleEstado(emp: any) {
-      const nuevo = emp.estado === 'ACTIVO' ? 'CESADO' : 'ACTIVO';
-      if(confirm(`¿Cambiar estado a ${nuevo}?`)) this.service.updateEmpleado({...emp, estado: nuevo}).subscribe(() => this.ngOnInit());
+      req.subscribe({ next: () => { this.ngOnInit(); this.closeModal(); alert("Guardado"); }, error: (e) => alert("Error: " + e.message) });
   }
 
   deleteEmpleado(id: number) {

@@ -7,7 +7,6 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
   selector: 'app-admin-usuarios',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  // --- IMPORTANTE: Usamos 'template' con comillas invertidas (`), NO 'templateUrl' ---
   template: `
     <div class="crud-container fade-in">
         <div class="crud-header">
@@ -24,8 +23,8 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
                         <th>ID</th>
                         <th>Username</th>
                         <th>Rol</th>
-                        <th>Estado</th>
-                        <th>Acciones</th> </tr>
+                        <th>Estado</th> <th>Acciones</th>
+                    </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let u of listaUsuarios">
@@ -38,25 +37,18 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
                         </td>
                         <td><span class="badge badge-role">{{ u.rol?.nombre }}</span></td>
                         <td>
-                            <span class="badge" 
+                            <span class="badge badge-clickable" 
                                   [ngClass]="u.activo ? 'badge-active' : 'badge-inactive'"
                                   (click)="toggleEstado(u)" 
-                                  style="cursor: pointer;"
                                   title="Clic para cambiar estado">
-                                {{ u.activo ? 'Activo' : 'Inactivo' }}
+                                {{ u.activo ? 'ACTIVO' : 'INACTIVO' }}
                             </span>
                         </td>
                         <td>
                             <div style="display: flex; gap: 5px;">
-                                <button class="action-btn view" (click)="verDetalles(u)" title="Ver">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="action-btn edit" (click)="openModal('editar', u)" title="Editar">
-                                    <i class="fas fa-pen"></i>
-                                </button>
-                                <button class="action-btn delete" (click)="deleteUsuario(u.idUsuario)" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <button class="action-btn view" (click)="verDetalles(u)" title="Ver"><i class="fas fa-eye"></i></button>
+                                <button class="action-btn edit" (click)="openModal('editar', u)" title="Editar"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn delete" (click)="deleteUsuario(u.idUsuario)" title="Eliminar"><i class="fas fa-trash"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -100,7 +92,7 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
                 <div class="detail-row"><strong>Usuario:</strong> {{ selectedItem?.username }}</div>
                 <div class="detail-row"><strong>Rol:</strong> {{ selectedItem?.rol?.nombre }}</div>
                 <div class="detail-row"><strong>Estado:</strong> {{ selectedItem?.activo ? 'Activo' : 'Inactivo' }}</div>
-                <div class="detail-row"><strong>Creado:</strong> {{ selectedItem?.creadoEn | date:'medium' }}</div>
+                <div class="detail-row"><strong>Fecha Creación:</strong> {{ selectedItem?.creadoEn | date:'short' }}</div>
                 
                 <div class="modal-actions">
                     <button (click)="closeDetailModal()" class="btn-save">Cerrar</button>
@@ -113,16 +105,42 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
 })
 export class AdminUsuariosComponent implements OnInit {
   listaUsuarios: any[] = [];
-  showModal = false; showDetailModal = false; isEditMode = false;
+  showModal: boolean = false; showDetailModal = false; isEditMode = false;
   tempItem: any = { rol: { idRol: 2 } }; selectedItem: any = null;
 
   constructor(private service: AdminCrudService, private cdr: ChangeDetectorRef) {}
 
-  ngOnInit() { 
-      this.service.getUsuarios().subscribe(data => {
-          this.listaUsuarios = data;
-          this.cdr.detectChanges();
-      });
+  ngOnInit() { this.cargarUsuarios(); }
+
+  cargarUsuarios() {
+    this.service.getUsuarios().subscribe(data => { this.listaUsuarios = data; this.cdr.detectChanges(); });
+  }
+
+  // LOGICA ACTIVAR/DESACTIVAR (BOOLEAN)
+  toggleEstado(usuario: any) {
+      const nuevoEstado = !usuario.activo;
+      const accion = nuevoEstado ? "ACTIVAR" : "DESACTIVAR";
+
+      if(confirm(`¿Estás seguro de ${accion} al usuario ${usuario.username}?`)) {
+          // CLONAMOS EL OBJETO Y CAMBIAMOS EL ESTADO
+          const usuarioActualizado = { ...usuario, activo: nuevoEstado };
+          
+          this.service.updateUsuario(usuarioActualizado).subscribe({
+              next: () => {
+                  this.cargarUsuarios(); // Recargamos la tabla
+              },
+              error: (err) => alert("Error al cambiar estado: " + err.message)
+          });
+      }
+  }
+
+  guardarUsuario() {
+      const req = this.isEditMode ? this.service.updateUsuario(this.tempItem) : this.service.createUsuario(this.tempItem);
+      req.subscribe({ next: () => { this.cargarUsuarios(); this.closeModal(); }, error: (e) => alert(e.error?.message || "Error") });
+  }
+
+  deleteUsuario(id: number) {
+      if(confirm('¿Eliminar usuario?')) this.service.deleteUsuario(id).subscribe(() => this.cargarUsuarios());
   }
 
   openModal(mode: 'crear'|'editar', item?: any) {
@@ -130,20 +148,6 @@ export class AdminUsuariosComponent implements OnInit {
       this.tempItem = item ? JSON.parse(JSON.stringify(item)) : { rol: { idRol: 2 }, activo: true, persona: { idPersona: 1 } };
       if(this.isEditMode) this.tempItem.hashPass = '';
       this.showModal = true;
-  }
-
-  guardarUsuario() {
-      if(!this.tempItem.username) { alert("Usuario requerido"); return; }
-      const req = this.isEditMode ? this.service.updateUsuario(this.tempItem) : this.service.createUsuario(this.tempItem);
-      req.subscribe({ next: () => { this.ngOnInit(); this.closeModal(); }, error: (e) => alert(e.error?.message || "Error") });
-  }
-
-  toggleEstado(u: any) {
-      if(confirm('¿Cambiar estado?')) this.service.updateUsuario({...u, activo: !u.activo}).subscribe(() => this.ngOnInit());
-  }
-
-  deleteUsuario(id: number) {
-      if(confirm('¿Eliminar?')) this.service.deleteUsuario(id).subscribe(() => this.ngOnInit());
   }
 
   verDetalles(item: any) { this.selectedItem = item; this.showDetailModal = true; }
