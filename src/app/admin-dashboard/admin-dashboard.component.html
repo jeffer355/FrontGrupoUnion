@@ -7,9 +7,14 @@
       </div>
 
       <div class="profile-info">
-        <img src="assets/images/user-avatar.webp" alt="Foto perfil">
+        <img [src]="adminPhoto || 'assets/images/user-avatar.webp'" 
+             alt="Foto perfil" 
+             style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; background-color: #eee;">
+             
         <h3>{{ adminName }}</h3>
-        <a href="javascript:void(0)" style="cursor: default;">{{ adminArea }}</a>
+        <a href="javascript:void(0)" style="cursor: default; color: rgba(255,255,255,0.8); text-decoration: none;">
+            {{ adminArea }}
+        </a>
       </div>
 
       <nav>

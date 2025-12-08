@@ -10,12 +10,17 @@ export class AdminCrudService {
 
   constructor(private http: HttpClient) { }
 
-  // --- CATALOGOS ---
+  // --- SUBIDA DE FOTO ---
+  uploadFotoPersona(idPersona: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiUrl}/personas/${idPersona}/foto`, formData, { withCredentials: true });
+  }
+
   getTiposDocumento(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/tipos-documento`, { withCredentials: true });
   }
-
-  // --- USUARIOS ---
+  // USUARIOS
   getUsuarios(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/usuarios`, { withCredentials: true });
   }
@@ -28,8 +33,7 @@ export class AdminCrudService {
   deleteUsuario(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/usuarios/${id}`, { withCredentials: true });
   }
-
-  // --- ÁREAS ---
+  // AREAS
   getAreas(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/areas`, { withCredentials: true });
   }
@@ -45,8 +49,7 @@ export class AdminCrudService {
   deleteArea(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/areas/${id}`, { withCredentials: true });
   }
-
-  // --- EMPLEADOS ---
+  // EMPLEADOS
   getEmpleados(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/empleados`, { withCredentials: true });
   }

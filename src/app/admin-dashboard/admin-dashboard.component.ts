@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // 1. IMPORTAR ChangeDetectorRef
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../auth/services/auth.service';
@@ -14,12 +14,15 @@ import { DashboardService } from '../services/dashboard.service';
 export class AdminDashboardComponent implements OnInit {
   isSidebarActive: boolean = false;
   adminName: string = 'Cargando...';
-  adminArea: string = ''; // Inicialmente vacío para que salga el texto "Cargando..."
+  adminArea: string = '';
+  
+  // VARIABLE PARA LA FOTO
+  adminPhoto: string | null = null; 
 
   constructor(
     private authService: AuthService,
     private dashboardService: DashboardService,
-    private cdr: ChangeDetectorRef // 2. INYECTARLO AQUÍ
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -29,18 +32,20 @@ export class AdminDashboardComponent implements OnInit {
   loadAdminData() {
     this.dashboardService.getAdminData().subscribe({
       next: (data) => {
-        // Asignamos los datos
+        console.log('Datos Admin Dashboard:', data); 
         this.adminName = data.nombreCompleto || 'Administrador';
         this.adminArea = data.departamento || 'Administración';
         
-        // 3. ¡EL FIX! FORZAMOS A ANGULAR A PINTAR LOS DATOS YA
+        // ASIGNAMOS LA FOTO QUE VIENE DEL BACKEND
+        this.adminPhoto = data.fotoUrl; 
+        
         this.cdr.detectChanges(); 
       },
       error: (err) => {
-        console.error('Error cargando dashboard', err);
+        console.error('Error cargando admin data', err);
         this.adminName = 'Admin Offline';
         this.adminArea = 'Sin conexión';
-        this.cdr.detectChanges(); // Forzamos también en error
+        this.cdr.detectChanges();
       }
     });
   }

@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../auth/services/auth.service';
 import { DashboardService } from '../services/dashboard.service';
 
-// Interfaz ajustada
+// Interfaz ajustada con fotoUrl opcional
 interface EmpleadoData {
   nombres: string;
   nombreCompleto: string;
@@ -12,6 +12,7 @@ interface EmpleadoData {
   email: string;
   telefono: string;
   departamento?: string;
+  fotoUrl?: string; // Campo opcional para la foto
 }
 
 @Component({
@@ -50,8 +51,8 @@ export class EmpleadoDashboardComponent implements OnInit {
           cargo: data.cargo,
           email: data.email,
           telefono: data.telefono,
-          // Asegúrate que tu backend envíe 'departamento' o 'area'
-          departamento: data.departamento 
+          departamento: data.departamento,
+          fotoUrl: data.fotoUrl // Asignamos la URL que viene del backend
         };
         
         // FORZAR ACTUALIZACIÓN DE VISTA
@@ -66,7 +67,8 @@ export class EmpleadoDashboardComponent implements OnInit {
           cargo: 'Sin conexión',
           email: 'error@sistema',
           telefono: '000-000',
-          departamento: 'Desconectado' // Agregado para consistencia
+          departamento: 'Desconectado',
+          fotoUrl: undefined 
         };
         this.cdr.detectChanges(); 
       }

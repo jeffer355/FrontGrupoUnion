@@ -12,41 +12,35 @@ import Swal from 'sweetalert2';
     <div class="crud-container fade-in">
         <div class="crud-header">
             <h2>Gestión de Usuarios</h2>
-            
             <div class="toolbar">
                 <div class="search-wrapper">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" 
-                           placeholder="Buscar usuario..." 
-                           class="search-input-table"
-                           [(ngModel)]="searchText"
-                           (keyup)="filtrar()">
+                    <input type="text" placeholder="Buscar usuario..." class="search-input-table" [(ngModel)]="searchText" (keyup)="filtrar()">
                 </div>
-                <button class="btn-add" (click)="openModal('crear')"> 
-                    <i class="fas fa-plus"></i> Nuevo
-                </button>
+                <button class="btn-add" (click)="openModal('crear')"> <i class="fas fa-plus"></i> Nuevo </button>
             </div>
         </div>
         
         <div class="table-responsive">
             <table class="modern-table">
                 <thead>
-                    <tr><th>ID</th><th>Username</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>
+                    <tr><th>ID</th><th>Usuario (Foto)</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let u of listaFiltrada">
                         <td>#{{ u.idUsuario }}</td>
                         <td>
                             <div class="user-cell">
-                                <div class="user-avatar-small">{{ u.username.charAt(0).toUpperCase() }}</div>
+                                <img *ngIf="u.persona?.fotoUrl" [src]="u.persona.fotoUrl" class="user-avatar-small" style="object-fit:cover;">
+                                <div *ngIf="!u.persona?.fotoUrl" class="user-avatar-small">
+                                    {{ u.username.charAt(0).toUpperCase() }}
+                                </div>
                                 <span>{{ u.username }}</span>
                             </div>
                         </td>
                         <td><span class="badge badge-role">{{ u.rol?.nombre }}</span></td>
                         <td>
-                            <span class="badge badge-clickable" 
-                                  [ngClass]="u.activo ? 'badge-active' : 'badge-inactive'"
-                                  (click)="toggleEstado(u)" title="Clic para cambiar">
+                            <span class="badge badge-clickable" [ngClass]="u.activo ? 'badge-active' : 'badge-inactive'" (click)="toggleEstado(u)">
                                 {{ u.activo ? 'ACTIVO' : 'INACTIVO' }}
                             </span>
                         </td>
@@ -58,11 +52,6 @@ import Swal from 'sweetalert2';
                             </div>
                         </td>
                     </tr>
-                    <tr *ngIf="listaFiltrada.length === 0">
-                        <td colspan="5" style="text-align: center; padding: 20px; color: #666;">
-                            No se encontraron resultados para "{{searchText}}"
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -71,18 +60,18 @@ import Swal from 'sweetalert2';
             <div class="modal-content">
                 <h3>{{ isEditMode ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
                 
-                <div class="alert-info" style="background:#e0f2fe; color:#0369a1; padding:10px; border-radius:5px; margin-bottom:15px; font-size:0.9em;">
-                    <i class="fas fa-info-circle"></i> El usuario (email) debe existir previamente en la tabla de Empleados/Personas.
+                <div class="alert-info" style="background:#e0f2fe; color:#0369a1; padding:10px; margin-bottom:15px; border-radius:5px;">
+                    <i class="fas fa-info-circle"></i> El email debe existir previamente en Empleados.
                 </div>
 
                 <div class="form-group">
                     <label>Username (Email)</label>
-                    <input type="email" [(ngModel)]="tempItem.username" class="search-input full-width" placeholder="ejemplo@grupounion.com">
+                    <input type="email" [(ngModel)]="tempItem.username" class="search-input full-width">
                 </div>
                 
                 <div class="form-group" *ngIf="!isEditMode">
                     <label>Contraseña Temporal</label>
-                    <input type="password" [(ngModel)]="tempItem.hashPass" class="search-input full-width" placeholder="******">
+                    <input type="password" [(ngModel)]="tempItem.hashPass" class="search-input full-width">
                 </div>
                 
                 <div class="form-group">
@@ -91,6 +80,11 @@ import Swal from 'sweetalert2';
                         <option [value]="1">ADMIN</option>
                         <option [value]="2">EMPLEADO</option>
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Foto de Perfil (Opcional)</label>
+                    <input type="file" (change)="onFileSelected($event)" accept="image/*" class="search-input full-width">
                 </div>
                 
                 <div class="modal-actions">
@@ -103,10 +97,12 @@ import Swal from 'sweetalert2';
         <div class="modal-backdrop" *ngIf="showDetailModal">
             <div class="modal-content">
                 <h3>Detalles</h3>
+                <div style="text-align:center; margin-bottom:15px;" *ngIf="selectedItem?.persona?.fotoUrl">
+                     <img [src]="selectedItem.persona.fotoUrl" style="width:100px; height:100px; border-radius:50%; object-fit:cover;">
+                </div>
                 <div class="detail-row"><strong>Usuario:</strong> {{ selectedItem?.username }}</div>
                 <div class="detail-row"><strong>Rol:</strong> {{ selectedItem?.rol?.nombre }}</div>
                 <div class="detail-row"><strong>Estado:</strong> {{ selectedItem?.activo ? 'Activo' : 'Inactivo' }}</div>
-                <div class="detail-row"><strong>Persona Asignada:</strong> {{ selectedItem?.persona?.nombres }}</div>
                 <div class="modal-actions"><button (click)="closeDetailModal()" class="btn-save">Cerrar</button></div>
             </div>
         </div>
@@ -118,12 +114,14 @@ export class AdminUsuariosComponent implements OnInit {
   listaUsuarios: any[] = [];
   listaFiltrada: any[] = [];
   searchText: string = '';
-
   showModal = false; 
   showDetailModal = false; 
   isEditMode = false;
   tempItem: any = this.initEmpty(); 
   selectedItem: any = null;
+  
+  // Archivo seleccionado
+  selectedFile: File | null = null;
 
   constructor(private service: AdminCrudService, private cdr: ChangeDetectorRef) {}
 
@@ -138,119 +136,73 @@ export class AdminUsuariosComponent implements OnInit {
   }
 
   filtrar() {
-      if (!this.searchText) {
-          this.listaFiltrada = this.listaUsuarios;
-      } else {
+      if (!this.searchText) { this.listaFiltrada = this.listaUsuarios; } 
+      else {
           const texto = this.searchText.toLowerCase();
-          this.listaFiltrada = this.listaUsuarios.filter(u => 
-              u.username.toLowerCase().includes(texto) || 
-              u.rol?.nombre.toLowerCase().includes(texto)
-          );
+          this.listaFiltrada = this.listaUsuarios.filter(u => u.username.toLowerCase().includes(texto));
       }
   }
 
   toggleEstado(u: any) {
-      const nuevoEstado = !u.activo;
-      const original = u.activo;
-      u.activo = nuevoEstado; // Optimista
-
+      u.activo = !u.activo;
       this.service.updateUsuario(u).subscribe({
-          next: () => {
-              const msg = nuevoEstado ? 'Usuario activado' : 'Usuario desactivado';
-              Swal.fire({
-                  toast: true,
-                  position: 'top-end',
-                  icon: 'success',
-                  title: msg,
-                  showConfirmButton: false,
-                  timer: 2000
-              });
-          },
-          error: () => {
-              u.activo = original; // Revertir
-              Swal.fire('Error', 'No se pudo cambiar el estado', 'error');
-          }
+          next: () => Swal.fire({ icon: 'success', title: 'Estado actualizado', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 }),
+          error: () => { u.activo = !u.activo; Swal.fire('Error', 'No se pudo cambiar', 'error'); }
       });
+  }
+
+  // Capturar archivo
+  onFileSelected(event: any) {
+      this.selectedFile = event.target.files[0];
   }
 
   guardarUsuario() {
       if (!this.tempItem.username || (!this.isEditMode && !this.tempItem.hashPass)) {
-          Swal.fire('Atención', 'Complete todos los campos', 'warning');
-          return;
+          Swal.fire('Atención', 'Complete campos obligatorios', 'warning'); return;
       }
+      if (typeof this.tempItem.rol.idRol === 'string') this.tempItem.rol.idRol = parseInt(this.tempItem.rol.idRol);
 
-      // Asegurar que el rol viene como objeto
-      if (typeof this.tempItem.rol.idRol === 'string') {
-          this.tempItem.rol.idRol = parseInt(this.tempItem.rol.idRol);
-      }
-
-      const request = this.isEditMode 
-          ? this.service.updateUsuario(this.tempItem) 
-          : this.service.createUsuario(this.tempItem);
+      const request = this.isEditMode ? this.service.updateUsuario(this.tempItem) : this.service.createUsuario(this.tempItem);
 
       request.subscribe({
-          next: () => {
-              this.cargarUsuarios();
-              this.closeModal();
-              // NOTIFICACIÓN VISUAL TIPO IMAGEN 1
-              Swal.fire({
-                  icon: 'success',
-                  title: 'Éxito',
-                  text: 'Guardado',
-                  showConfirmButton: true,
-                  confirmButtonColor: '#10b981'
-              });
+          next: (userSaved: any) => {
+              // Si guardó el usuario OK y hay foto, subimos la foto
+              if (this.selectedFile && userSaved && userSaved.persona && userSaved.persona.idPersona) {
+                  this.service.uploadFotoPersona(userSaved.persona.idPersona, this.selectedFile).subscribe({
+                      next: (res) => this.finalizarGuardado('Usuario y foto guardados'),
+                      error: (err) => this.finalizarGuardado('Usuario guardado, pero error en foto')
+                  });
+              } else {
+                  this.finalizarGuardado('Usuario guardado');
+              }
           },
-          error: (e) => {
-              // AQUÍ SE MUESTRA POR QUÉ FALLÓ (Ej: Correo no existe en Persona)
-              const msg = e.error?.message || 'Error desconocido al guardar';
-              Swal.fire('Error', msg, 'error');
-          }
+          error: (e) => Swal.fire('Error', e.error?.message || 'Error al guardar', 'error')
       });
+  }
+
+  finalizarGuardado(msg: string) {
+      this.cargarUsuarios();
+      this.closeModal();
+      this.selectedFile = null;
+      Swal.fire({ icon: 'success', title: 'Éxito', text: msg, confirmButtonColor: '#10b981' });
   }
 
   deleteUsuario(id: number) {
-      Swal.fire({
-          title: '¿Eliminar Usuario?',
-          text: "Esta acción no se puede deshacer.",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#d33',
-          confirmButtonText: 'Sí, eliminar'
-      }).then((result) => {
-          if (result.isConfirmed) {
-              this.service.deleteUsuario(id).subscribe({
-                  next: () => {
-                      this.cargarUsuarios();
-                      Swal.fire('Eliminado', 'El usuario ha sido eliminado', 'success');
-                  },
-                  error: (e) => Swal.fire('Error', e.error?.message, 'error')
-              });
-          }
+      Swal.fire({ title: '¿Eliminar?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then((r) => {
+          if (r.isConfirmed) this.service.deleteUsuario(id).subscribe(() => { this.cargarUsuarios(); Swal.fire('Eliminado', '', 'success'); });
       });
   }
 
-  initEmpty() {
-      return { 
-          username: '', 
-          hashPass: '', 
-          activo: true, 
-          rol: { idRol: 2 } // Por defecto Empleado
-      };
-  }
-
+  initEmpty() { return { username: '', hashPass: '', activo: true, rol: { idRol: 2 } }; }
+  
   openModal(m: 'crear' | 'editar', i?: any) {
       this.isEditMode = m === 'editar';
-      if (this.isEditMode && i) {
-          // Clonar objeto para no editar en tabla directamente
-          this.tempItem = JSON.parse(JSON.stringify(i));
-          this.tempItem.hashPass = ''; // Limpiar pass en edición
-      } else {
-          this.tempItem = this.initEmpty();
-      }
+      this.tempItem = i ? JSON.parse(JSON.stringify(i)) : this.initEmpty();
+      if (this.isEditMode) this.tempItem.hashPass = '';
+      this.selectedFile = null; // Resetear archivo
       this.showModal = true;
   }
-
+  
   verDetalles(i: any) { this.selectedItem = i; this.showDetailModal = true; }
   closeModal() { this.showModal = false; }
   closeDetailModal() { this.showDetailModal = false; }
