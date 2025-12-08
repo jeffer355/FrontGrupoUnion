@@ -3,33 +3,29 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 
-// Interfaces definidas aquí mismo para evitar errores de importación
-export interface LoginRequest {
-    username: string;
-    password: string;
-}
-
-export interface LoginResponse {
-    status: string;
-    message: string;
-    role: string;
-    redirectUrl: string;
-    username: string;
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8081'; 
+  private apiUrl = 'http://localhost:8081/api/auth';
   private userKey = 'grupoUnionUser';
 
   constructor(private http: HttpClient, private router: Router) { }
 
-  login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/api/auth/login`, credentials, { withCredentials: true })
+  // --- MÉTODOS DEL LOGIN SEGURO (CORREO/TOKEN) ---
+
+  loginStep1(credentials: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login-step1`, credentials);
+  }
+
+  changePassword(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/change-password`, data);
+  }
+
+  verify2FA(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-2fa`, data, { withCredentials: true })
       .pipe(
-        tap(response => {
+        tap((response: any) => {
           if (response.status === 'success') {
             localStorage.setItem(this.userKey, JSON.stringify(response));
           }
@@ -37,12 +33,11 @@ export class AuthService {
       );
   }
 
+  // --- MÉTODOS DE UTILIDAD (ESTOS FALTABAN Y CAUSABAN EL ERROR) ---
+
   logout(): void {
     localStorage.removeItem(this.userKey);
-    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe({
-      next: () => this.router.navigate(['/auth/login']),
-      error: () => this.router.navigate(['/auth/login']) 
-    });
+    this.router.navigate(['/auth/login']);
   }
 
   isLoggedIn(): boolean {
@@ -52,17 +47,16 @@ export class AuthService {
   getUserRole(): string | null {
     const userStr = localStorage.getItem(this.userKey);
     if (userStr) {
-      const user: LoginResponse = JSON.parse(userStr);
+      const user = JSON.parse(userStr);
       return user.role;
     }
     return null;
   }
 
-  // --- ESTA ES LA FUNCIÓN QUE FALTABA ---
   getUserName(): string | null {
     const userStr = localStorage.getItem(this.userKey);
     if (userStr) {
-      const user: LoginResponse = JSON.parse(userStr);
+      const user = JSON.parse(userStr);
       return user.username;
     }
     return null;
