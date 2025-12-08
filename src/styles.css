@@ -30,3 +30,9 @@ body {
     width: 100vw;
     overflow-x: hidden;
 }
+
+/* --- CORRECCIÓN DEFINITIVA PARA SWEETALERT --- */
+/* Esto asegura que la alerta salga ENCIMA de cualquier modal */
+.swal2-container {
+    z-index: 99999 !important;
+}

@@ -94,6 +94,24 @@ import Swal from 'sweetalert2';
         </div>
     </div>
   `,
+  // ESTILOS INCRUSTADOS PARA ASEGURAR QUE SE VEA BIEN
+  styles: [`
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    .section-title { color: #e60000; font-size: 0.9rem; font-weight: bold; border-bottom: 2px solid #f9f9f9; padding-bottom: 5px; margin-bottom: 15px; }
+    .form-row { display: flex; gap: 15px; } .half { flex: 1; }
+    .scrollable-modal { width: 800px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+    
+    /* Estilos del Switch */
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; margin-right: 10px; vertical-align: middle; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: #10b981; }
+    input:checked + .slider:before { transform: translateX(20px); }
+    .switch-label { font-size: 0.8rem; font-weight: 600; color: #555; vertical-align: middle; }
+
+    @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+  `],
   styleUrls: ['../../admin-dashboard.component.css']
 })
 export class AdminEmpleadosComponent implements OnInit {
@@ -110,16 +128,11 @@ export class AdminEmpleadosComponent implements OnInit {
   }
 
   toggleEstado(emp: any) {
-      // Lógica de Strings: Si es ACTIVO -> CESADO, sino -> ACTIVO
       const nuevoEstado = emp.estado === 'ACTIVO' ? 'CESADO' : 'ACTIVO';
-      
-      // Cambio visual inmediato
-      emp.estado = nuevoEstado;
-
+      emp.estado = nuevoEstado; // Cambio visual inmediato
       this.service.updateEmpleado({...emp}).subscribe({
           error: () => {
-              // Revertir si falla
-              emp.estado = (nuevoEstado === 'ACTIVO') ? 'CESADO' : 'ACTIVO';
+              emp.estado = (nuevoEstado === 'ACTIVO') ? 'CESADO' : 'ACTIVO'; // Revertir
               Swal.fire('Error', 'No se pudo actualizar', 'error');
           }
       });

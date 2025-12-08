@@ -363,3 +363,19 @@ input:checked + .slider:before {
     color: #555;
     vertical-align: middle;
 }
+
+/* --- MENSAJES DE ERROR DEBAJO DEL INPUT --- */
+.error-text {
+    color: #dc2626; /* Rojo oscuro */
+    font-size: 0.85rem;
+    margin-top: 4px;
+    display: block;
+    font-weight: 500;
+}
+
+/* Borde rojo cuando hay error */
+.search-input.error-border {
+    border-color: #dc2626 !important;
+    background-color: #fef2f2;
+}
+
