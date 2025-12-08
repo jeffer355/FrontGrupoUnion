@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminCrudService } from '../../../services/admin-crud.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-admin-empleados',
@@ -25,19 +26,18 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
                         <td>{{ emp.departamento?.nombre }}</td>
                         <td>{{ emp.cargo?.nombre }}</td>
                         <td>
-                             <span class="badge badge-clickable" 
-                                   [ngClass]="emp.estado === 'ACTIVO' ? 'badge-active' : 'badge-inactive'"
-                                   (click)="toggleEstado(emp)" 
-                                   title="Clic para cambiar estado">
-                                {{ emp.estado }}
-                            </span>
+                             <label class="switch">
+                                <input type="checkbox" 
+                                       [checked]="emp.estado === 'ACTIVO'" 
+                                       (change)="toggleEstado(emp)">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="switch-label">{{ emp.estado }}</span>
                         </td>
                         <td>
-                            <div style="display: flex; gap: 5px;">
-                                <button class="action-btn view" (click)="verDetalles(emp)"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn edit" (click)="openModal('editar', emp)"><i class="fas fa-pen"></i></button>
-                                <button class="action-btn delete" (click)="deleteEmpleado(emp.idEmpleado)"><i class="fas fa-trash"></i></button>
-                            </div>
+                            <button class="action-btn view" (click)="verDetalles(emp)"><i class="fas fa-eye"></i></button>
+                            <button class="action-btn edit" (click)="openModal('editar', emp)"><i class="fas fa-pen"></i></button>
+                            <button class="action-btn delete" (click)="deleteEmpleado(emp.idEmpleado)"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 </tbody>
@@ -94,13 +94,6 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
         </div>
     </div>
   `,
-  styles: [`
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-    .section-title { color: #e60000; font-size: 0.9rem; font-weight: bold; border-bottom: 2px solid #f9f9f9; padding-bottom: 5px; margin-bottom: 15px; }
-    .form-row { display: flex; gap: 15px; } .half { flex: 1; }
-    .scrollable-modal { width: 800px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
-    @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
-  `],
   styleUrls: ['../../admin-dashboard.component.css']
 })
 export class AdminEmpleadosComponent implements OnInit {
@@ -116,22 +109,20 @@ export class AdminEmpleadosComponent implements OnInit {
     this.service.getTiposDocumento().subscribe(d => this.listaTiposDoc = d);
   }
 
-  // LOGICA ACTIVAR/DESACTIVAR (STRING)
   toggleEstado(emp: any) {
-      const estadoActual = emp.estado; 
-      // Si es ACTIVO pasa a CESADO, sino a ACTIVO
-      const nuevoEstado = (estadoActual === 'ACTIVO') ? 'CESADO' : 'ACTIVO';
-      const accion = (nuevoEstado === 'ACTIVO') ? 'ACTIVAR' : 'CESAR';
+      // Lógica de Strings: Si es ACTIVO -> CESADO, sino -> ACTIVO
+      const nuevoEstado = emp.estado === 'ACTIVO' ? 'CESADO' : 'ACTIVO';
+      
+      // Cambio visual inmediato
+      emp.estado = nuevoEstado;
 
-      if(confirm(`¿Desea ${accion} al empleado ${emp.persona.nombres}?`)) {
-          // Clonamos objeto completo y cambiamos solo el estado
-          const empActualizado = { ...emp, estado: nuevoEstado };
-          
-          this.service.updateEmpleado(empActualizado).subscribe({
-              next: () => this.ngOnInit(), // Recargar tabla
-              error: (err) => alert("Error al cambiar estado")
-          });
-      }
+      this.service.updateEmpleado({...emp}).subscribe({
+          error: () => {
+              // Revertir si falla
+              emp.estado = (nuevoEstado === 'ACTIVO') ? 'CESADO' : 'ACTIVO';
+              Swal.fire('Error', 'No se pudo actualizar', 'error');
+          }
+      });
   }
 
   initEmpty() { return { persona: { nombres: '', nroDocumento: '', fechaNac: '', telefono: '', email: '', direccion: '', tipoDocumento: { idTipoDoc: 1 } }, departamento: { idDepartamento: null }, cargo: { idCargo: 1 }, fechaIngreso: new Date().toISOString().split('T')[0], estado: 'ACTIVO' }; }
@@ -147,13 +138,15 @@ export class AdminEmpleadosComponent implements OnInit {
   }
 
   guardarEmpleado() {
-      if(!this.tempItem.persona.nombres || !this.tempItem.departamento.idDepartamento) { alert("Complete datos"); return; }
+      if(!this.tempItem.persona.nombres || !this.tempItem.departamento.idDepartamento) { Swal.fire('Atención', 'Complete los datos obligatorios', 'warning'); return; }
       const req = this.isEditMode ? this.service.updateEmpleado(this.tempItem) : this.service.createEmpleado(this.tempItem);
-      req.subscribe({ next: () => { this.ngOnInit(); this.closeModal(); alert("Guardado"); }, error: (e) => alert("Error: " + e.message) });
+      req.subscribe({ next: () => { this.ngOnInit(); this.closeModal(); Swal.fire('Éxito', 'Guardado correctamente', 'success'); }, error: (e) => Swal.fire('Error', e.error?.message, 'error') });
   }
 
   deleteEmpleado(id: number) {
-      if(confirm('¿Eliminar?')) this.service.deleteEmpleado(id).subscribe(() => this.ngOnInit());
+      Swal.fire({ title: '¿Eliminar?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then((r) => {
+          if(r.isConfirmed) this.service.deleteEmpleado(id).subscribe(() => this.ngOnInit());
+      });
   }
 
   verDetalles(item: any) { this.selectedItem = item; this.showDetailModal = true; }

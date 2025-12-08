@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminCrudService } from '../../../services/admin-crud.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-admin-usuarios',
@@ -20,10 +21,7 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
             <table class="modern-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Rol</th>
-                        <th>Estado</th> <th>Acciones</th>
+                        <th>ID</th><th>Username</th><th>Rol</th><th>Activo</th><th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,19 +35,16 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
                         </td>
                         <td><span class="badge badge-role">{{ u.rol?.nombre }}</span></td>
                         <td>
-                            <span class="badge badge-clickable" 
-                                  [ngClass]="u.activo ? 'badge-active' : 'badge-inactive'"
-                                  (click)="toggleEstado(u)" 
-                                  title="Clic para cambiar estado">
-                                {{ u.activo ? 'ACTIVO' : 'INACTIVO' }}
-                            </span>
+                            <label class="switch">
+                                <input type="checkbox" [checked]="u.activo" (change)="toggleEstado(u)">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="switch-label">{{ u.activo ? 'SI' : 'NO' }}</span>
                         </td>
                         <td>
-                            <div style="display: flex; gap: 5px;">
-                                <button class="action-btn view" (click)="verDetalles(u)" title="Ver"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn edit" (click)="openModal('editar', u)" title="Editar"><i class="fas fa-pen"></i></button>
-                                <button class="action-btn delete" (click)="deleteUsuario(u.idUsuario)" title="Eliminar"><i class="fas fa-trash"></i></button>
-                            </div>
+                            <button class="action-btn view" (click)="verDetalles(u)" title="Ver"><i class="fas fa-eye"></i></button>
+                            <button class="action-btn edit" (click)="openModal('editar', u)" title="Editar"><i class="fas fa-pen"></i></button>
+                            <button class="action-btn delete" (click)="deleteUsuario(u.idUsuario)" title="Eliminar"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 </tbody>
@@ -59,44 +54,27 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
         <div class="modal-backdrop" *ngIf="showModal">
             <div class="modal-content">
                 <h3>{{ isEditMode ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
-                
-                <div class="form-group">
-                    <label>Username (Email)</label>
-                    <input type="email" [(ngModel)]="tempItem.username" class="search-input full-width">
-                </div>
-                
-                <div class="form-group" *ngIf="!isEditMode">
-                    <label>Contraseña</label>
-                    <input type="password" [(ngModel)]="tempItem.hashPass" class="search-input full-width">
-                </div>
-
-                <div class="form-group">
-                    <label>Rol</label>
+                <div class="form-group"><label>Username</label><input type="email" [(ngModel)]="tempItem.username" class="search-input full-width"></div>
+                <div class="form-group" *ngIf="!isEditMode"><label>Contraseña</label><input type="password" [(ngModel)]="tempItem.hashPass" class="search-input full-width"></div>
+                <div class="form-group"><label>Rol</label>
                     <select [(ngModel)]="tempItem.rol.idRol" class="search-input full-width">
-                        <option [value]="1">ADMIN</option>
-                        <option [value]="2">EMPLEADO</option>
+                        <option [value]="1">ADMIN</option><option [value]="2">EMPLEADO</option>
                     </select>
                 </div>
-
                 <div class="modal-actions">
                     <button (click)="closeModal()" class="btn-cancel">Cancelar</button>
                     <button (click)="guardarUsuario()" class="btn-save">Guardar</button>
                 </div>
             </div>
         </div>
-
+        
         <div class="modal-backdrop" *ngIf="showDetailModal">
             <div class="modal-content">
-                <h3>Detalles del Usuario</h3>
-                <div class="detail-row"><strong>ID:</strong> {{ selectedItem?.idUsuario }}</div>
+                <h3>Detalles</h3>
                 <div class="detail-row"><strong>Usuario:</strong> {{ selectedItem?.username }}</div>
                 <div class="detail-row"><strong>Rol:</strong> {{ selectedItem?.rol?.nombre }}</div>
                 <div class="detail-row"><strong>Estado:</strong> {{ selectedItem?.activo ? 'Activo' : 'Inactivo' }}</div>
-                <div class="detail-row"><strong>Fecha Creación:</strong> {{ selectedItem?.creadoEn | date:'short' }}</div>
-                
-                <div class="modal-actions">
-                    <button (click)="closeDetailModal()" class="btn-save">Cerrar</button>
-                </div>
+                <div class="modal-actions"><button (click)="closeDetailModal()" class="btn-save">Cerrar</button></div>
             </div>
         </div>
     </div>
@@ -105,7 +83,7 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
 })
 export class AdminUsuariosComponent implements OnInit {
   listaUsuarios: any[] = [];
-  showModal: boolean = false; showDetailModal = false; isEditMode = false;
+  showModal = false; showDetailModal = false; isEditMode = false;
   tempItem: any = { rol: { idRol: 2 } }; selectedItem: any = null;
 
   constructor(private service: AdminCrudService, private cdr: ChangeDetectorRef) {}
@@ -116,31 +94,27 @@ export class AdminUsuariosComponent implements OnInit {
     this.service.getUsuarios().subscribe(data => { this.listaUsuarios = data; this.cdr.detectChanges(); });
   }
 
-  // LOGICA ACTIVAR/DESACTIVAR (BOOLEAN)
   toggleEstado(usuario: any) {
-      const nuevoEstado = !usuario.activo;
-      const accion = nuevoEstado ? "ACTIVAR" : "DESACTIVAR";
-
-      if(confirm(`¿Estás seguro de ${accion} al usuario ${usuario.username}?`)) {
-          // CLONAMOS EL OBJETO Y CAMBIAMOS EL ESTADO
-          const usuarioActualizado = { ...usuario, activo: nuevoEstado };
-          
-          this.service.updateUsuario(usuarioActualizado).subscribe({
-              next: () => {
-                  this.cargarUsuarios(); // Recargamos la tabla
-              },
-              error: (err) => alert("Error al cambiar estado: " + err.message)
-          });
-      }
+      // Cambio optimista (visual)
+      usuario.activo = !usuario.activo; 
+      // Enviamos al backend
+      this.service.updateUsuario(usuario).subscribe({
+          error: () => {
+              usuario.activo = !usuario.activo; // Revertir si falla
+              Swal.fire('Error', 'No se pudo cambiar el estado', 'error');
+          }
+      });
   }
 
   guardarUsuario() {
       const req = this.isEditMode ? this.service.updateUsuario(this.tempItem) : this.service.createUsuario(this.tempItem);
-      req.subscribe({ next: () => { this.cargarUsuarios(); this.closeModal(); }, error: (e) => alert(e.error?.message || "Error") });
+      req.subscribe({ next: () => { this.cargarUsuarios(); this.closeModal(); Swal.fire('Guardado', '', 'success'); }, error: (e) => Swal.fire('Error', e.error?.message, 'error') });
   }
 
   deleteUsuario(id: number) {
-      if(confirm('¿Eliminar usuario?')) this.service.deleteUsuario(id).subscribe(() => this.cargarUsuarios());
+      Swal.fire({ title: '¿Eliminar?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then((r) => {
+          if(r.isConfirmed) this.service.deleteUsuario(id).subscribe(() => this.cargarUsuarios());
+      });
   }
 
   openModal(mode: 'crear'|'editar', item?: any) {
@@ -149,7 +123,6 @@ export class AdminUsuariosComponent implements OnInit {
       if(this.isEditMode) this.tempItem.hashPass = '';
       this.showModal = true;
   }
-
   verDetalles(item: any) { this.selectedItem = item; this.showDetailModal = true; }
   closeModal() { this.showModal = false; }
   closeDetailModal() { this.showDetailModal = false; }
