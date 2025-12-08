@@ -21,7 +21,7 @@
 .page-content { padding: 25px; }
 
 /* =========================================
-   2. SIDEBAR (ADMIN THEME - RED)
+   2. SIDEBAR (ADMIN THEME - ROJO)
    ========================================= */
 .sidebar.sidebar-admin {
   width: 250px;
@@ -33,7 +33,7 @@
   flex-shrink: 0;
   transition: margin-left 0.3s ease;
   z-index: 1000;
-  background-color: #e60000;
+  background-color: #e60000; /* ROJO CORPORATIVO */
 }
 
 .sidebar-header {
@@ -49,7 +49,7 @@
 .sidebar-logo { width: 40px; height: 40px; object-fit: contain; }
 .sidebar-header span { font-size: 1.1em; font-weight: 600; color: white; }
 
-/* --- PERFIL SIDEBAR (BARRA LATERAL) --- */
+/* --- PERFIL SIDEBAR (FOTO CUADRADA REDONDEADA) --- */
 .sidebar .profile-info {
   text-align: center; background-color: transparent; padding: 0;
   box-shadow: none; border-radius: 0; margin-bottom: 20px; color: white;
@@ -58,13 +58,13 @@
 .sidebar .profile-info img {
   width: 100px; 
   height: 100px; 
-  /* CAMBIO: Usamos px para cuadrado redondeado */
-  border-radius: 15px; 
+  /* MANTENIDO: 20px para que sea cuadrada con bordes redondos */
+  border-radius: 20px; 
   background-color: #eee; 
   margin-bottom: 10px;
-  object-fit: cover; /* Asegura que la foto se vea bien */
+  object-fit: cover;
   box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-  border: 2px solid rgba(255,255,255,0.1); /* Opcional: borde sutil */
+  border: 2px solid rgba(255,255,255,0.1);
 }
 
 .sidebar .profile-info h3 { font-size: 1.1rem; margin-bottom: 5px; color: white; }
@@ -144,6 +144,7 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 .crud-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .crud-header h2 { margin: 0; font-size: 1.5rem; color: #333; }
 
+/* BOTÓN NUEVO (ROJO) */
 .btn-add {
     background-color: #e60000; color: white; border: none; padding: 10px 20px;
     border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.3s;
@@ -171,14 +172,13 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 
 .user-cell { display: flex; align-items: center; gap: 10px; }
 
-/* --- FOTO PEQUEÑA EN LA TABLA (CIRCULAR) --- */
+/* --- FOTO PEQUEÑA EN LA TABLA (MANTENIDA CIRCULAR) --- */
 .user-avatar-small {
     width: 40px; 
     height: 40px; 
     background-color: #e60000; 
     color: white;
-    /* CAMBIO: 50% para que sea CIRCULAR */
-    border-radius: 50%; 
+    border-radius: 50%; /* CIRCULAR */
     display: flex; 
     justify-content: center; 
     align-items: center;
@@ -201,7 +201,7 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 .action-btn.edit { color: #3b82f6; }
 .action-btn.delete { color: #ef4444; }
 
-/* MODALES Y DEMÁS ESTILOS */
+/* MODALES */
 .modal-backdrop {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background-color: rgba(0, 0, 0, 0.85); 
@@ -219,6 +219,7 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 
 @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
+/* Títulos de Modal (Negro Oscuro) */
 .modal-content h3 {
     color: #0c0c0c !important;
     margin-top: 0;
@@ -230,6 +231,14 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 }
 .modal-actions {
     display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;
+}
+
+/* Títulos de Sección en Formularios (Rojo) */
+.section-title {
+    color: #e60000 !important;
+    margin-top: 20px; margin-bottom: 15px; display: block; width: 100%;
+    font-size: 0.9rem; font-weight: bold; text-transform: uppercase;
+    letter-spacing: 1px; border-bottom: 2px solid #f3f4f6; padding-bottom: 5px;
 }
 
 .search-input.full-width {
@@ -244,12 +253,13 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 .form-group { margin-bottom: 15px; }
 .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #444; font-size: 0.9rem; }
 
+/* Botones Guardar/Cancelar */
 .btn-save { background: #e60000; color: white; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; }
 .btn-save:hover { background: #c00000; }
 .btn-cancel { background: #f3f4f6; color: #333; border: 1px solid #ddd; padding: 10px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; }
 .btn-cancel:hover { background: #e5e7eb; }
+
 .alert-error { background-color: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #fca5a5; }
-.alert-error button { background: none; border: none; font-weight: bold; cursor: pointer; color: #991b1b; }
 .detail-row { padding: 8px 0; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; }
 
 @media (max-width: 600px) {
@@ -259,8 +269,39 @@ nav ul li { text-align: left; margin-bottom: 8px; }
   .page-content { padding: 10px; }
 }
 
+/* --- TOOLBAR Y BUSCADOR --- */
 .toolbar { display: flex; gap: 15px; align-items: center; }
 .search-wrapper { position: relative; }
 .search-input-table { padding: 8px 15px 8px 35px; border: 1px solid #ddd; border-radius: 20px; width: 250px; outline: none; transition: all 0.3s; }
 .search-input-table:focus { border-color: #e60000; box-shadow: 0 0 5px rgba(230,0,0,0.1); }
 .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; font-size: 0.9rem; }
+
+/* =========================================
+   ARREGLO BOTONES EXCEL/PDF (ESTILO NEUTRO)
+   ========================================= */
+.btn-export {
+    background-color: #fff; /* Fondo blanco neutro */
+    border: 1px solid #ddd; /* Borde sutil */
+    color: #333; /* Texto oscuro */
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-export:hover {
+    background-color: #f9fafb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-color: #ccc;
+}
+
+/* SOLO LOS ICONOS TIENEN COLOR AHORA */
+.btn-excel i { color: #10b981; font-size: 1.1em; } /* Icono Verde */
+.btn-pdf i { color: #ef4444; font-size: 1.1em; }   /* Icono Rojo */
