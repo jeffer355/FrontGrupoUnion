@@ -27,6 +27,15 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAdminData();
+
+    // --- SUSCRIPCIÓN EN TIEMPO REAL ---
+    // Esto escucha si la foto cambia desde el modulo de usuarios
+    this.dashboardService.currentAdminPhoto$.subscribe(photoUrl => {
+        if(photoUrl) {
+            this.adminPhoto = photoUrl;
+            this.cdr.detectChanges(); // Forzamos actualización de vista
+        }
+    });
   }
 
   loadAdminData() {
@@ -36,8 +45,10 @@ export class AdminDashboardComponent implements OnInit {
         this.adminName = data.nombreCompleto || 'Administrador';
         this.adminArea = data.departamento || 'Administración';
         
-        // ASIGNAMOS LA FOTO QUE VIENE DEL BACKEND
-        this.adminPhoto = data.fotoUrl; 
+        // Si el servicio no tenía foto aun, la seteamos aqui
+        if (data.fotoUrl && !this.adminPhoto) {
+             this.adminPhoto = data.fotoUrl;
+        }
         
         this.cdr.detectChanges(); 
       },

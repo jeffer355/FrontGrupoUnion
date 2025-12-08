@@ -2,6 +2,8 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminCrudService } from '../../../services/admin-crud.service';
+import { DashboardService } from '../../../services/dashboard.service'; // Importamos DashboardService
+import { AuthService } from '../../../auth/services/auth.service'; // Importamos AuthService
 import Swal from 'sweetalert2';
 
 @Component({
@@ -31,7 +33,7 @@ import Swal from 'sweetalert2';
                         <td>#{{ u.idUsuario }}</td>
                         <td>
                             <div class="user-cell">
-                                <img *ngIf="u.persona?.fotoUrl" [src]="u.persona.fotoUrl" class="user-avatar-small" style="object-fit:cover;">
+                                <img *ngIf="u.persona?.fotoUrl" [src]="u.persona.fotoUrl" class="user-avatar-small">
                                 <div *ngIf="!u.persona?.fotoUrl" class="user-avatar-small">
                                     {{ u.username.charAt(0).toUpperCase() }}
                                 </div>
@@ -120,12 +122,20 @@ export class AdminUsuariosComponent implements OnInit {
   tempItem: any = this.initEmpty(); 
   selectedItem: any = null;
   
-  // Archivo seleccionado
   selectedFile: File | null = null;
+  currentUser: string | null = null; // Variable para guardar quién soy yo
 
-  constructor(private service: AdminCrudService, private cdr: ChangeDetectorRef) {}
+  constructor(
+      private service: AdminCrudService, 
+      private dashboardService: DashboardService, // Inyectamos dashboardService
+      private authService: AuthService, // Inyectamos authService para saber mi usuario
+      private cdr: ChangeDetectorRef
+  ) {}
 
-  ngOnInit() { this.cargarUsuarios(); }
+  ngOnInit() { 
+      this.cargarUsuarios();
+      this.currentUser = this.authService.getUserName(); // Obtengo mi usuario actual del localStorage
+  }
 
   cargarUsuarios() {
     this.service.getUsuarios().subscribe(data => {
@@ -151,7 +161,6 @@ export class AdminUsuariosComponent implements OnInit {
       });
   }
 
-  // Capturar archivo
   onFileSelected(event: any) {
       this.selectedFile = event.target.files[0];
   }
@@ -166,10 +175,19 @@ export class AdminUsuariosComponent implements OnInit {
 
       request.subscribe({
           next: (userSaved: any) => {
-              // Si guardó el usuario OK y hay foto, subimos la foto
+              // Lógica de subida de foto
               if (this.selectedFile && userSaved && userSaved.persona && userSaved.persona.idPersona) {
                   this.service.uploadFotoPersona(userSaved.persona.idPersona, this.selectedFile).subscribe({
-                      next: (res) => this.finalizarGuardado('Usuario y foto guardados'),
+                      next: (res: any) => {
+                          const newUrl = res.message; // El backend devuelve la URL en 'message'
+                          
+                          // *** CLAVE: Si estoy editando MI propio usuario, actualizo el sidebar ***
+                          if (this.currentUser === userSaved.username) {
+                              this.dashboardService.updatePhoto(newUrl);
+                          }
+                          
+                          this.finalizarGuardado('Usuario y foto guardados');
+                      },
                       error: (err) => this.finalizarGuardado('Usuario guardado, pero error en foto')
                   });
               } else {
@@ -199,7 +217,7 @@ export class AdminUsuariosComponent implements OnInit {
       this.isEditMode = m === 'editar';
       this.tempItem = i ? JSON.parse(JSON.stringify(i)) : this.initEmpty();
       if (this.isEditMode) this.tempItem.hashPass = '';
-      this.selectedFile = null; // Resetear archivo
+      this.selectedFile = null; 
       this.showModal = true;
   }
   
