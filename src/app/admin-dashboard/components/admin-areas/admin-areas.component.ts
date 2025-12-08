@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminCrudService } from '../../../services/admin-crud.service';
+import Swal from 'sweetalert2'; // IMPORTANTE
 
 @Component({
   selector: 'app-admin-areas',
@@ -65,34 +66,87 @@ import { AdminCrudService } from '../../../services/admin-crud.service';
   styleUrls: ['../../admin-dashboard.component.css']
 })
 export class AdminAreasComponent implements OnInit {
-  listaAreas: any[] = []; empleadosDelArea: any[] = []; selectedArea: any = null;
-  showModal = false; showDetailModal = false; isEditMode = false; tempItem: any = {};
+  listaAreas: any[] = []; 
+  empleadosDelArea: any[] = []; 
+  selectedArea: any = null;
+  showModal = false; 
+  showDetailModal = false; 
+  isEditMode = false; 
+  tempItem: any = {};
 
   constructor(private service: AdminCrudService, private cdr: ChangeDetectorRef) {}
 
-  ngOnInit() { this.service.getAreas().subscribe(d => { this.listaAreas = d; this.cdr.detectChanges(); }); }
+  ngOnInit() { 
+      this.service.getAreas().subscribe(d => { 
+          this.listaAreas = d; 
+          this.cdr.detectChanges(); 
+      }); 
+  }
 
   verDetalles(area: any) {
-      this.selectedArea = area; this.empleadosDelArea = []; this.showDetailModal = true;
+      this.selectedArea = area; 
+      this.empleadosDelArea = []; 
+      this.showDetailModal = true;
       this.service.getEmpleadosPorArea(area.idDepartamento).subscribe(d => this.empleadosDelArea = d);
   }
 
   openModal(mode: 'crear'|'editar', item?: any) {
-      this.isEditMode = mode === 'editar'; this.tempItem = item ? { ...item } : {}; this.showModal = true;
+      this.isEditMode = mode === 'editar'; 
+      this.tempItem = item ? { ...item } : {}; 
+      this.showModal = true;
   }
 
   guardarArea() {
-      const req = this.isEditMode ? this.service.updateArea(this.tempItem.idDepartamento, this.tempItem) : this.service.saveArea(this.tempItem);
-      req.subscribe(() => { this.ngOnInit(); this.closeModal(); });
+      // Validar que no esté vacío
+      if (!this.tempItem.nombre) {
+          Swal.fire('Atención', 'Escribe un nombre para el área', 'warning');
+          return;
+      }
+
+      const req = this.isEditMode 
+        ? this.service.updateArea(this.tempItem.idDepartamento, this.tempItem) 
+        : this.service.saveArea(this.tempItem);
+      
+      req.subscribe({
+          next: () => { 
+              this.ngOnInit(); 
+              this.closeModal();
+              // AQUI ESTA LA NOTIFICACION DE EXITO QUE QUERIAS
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Éxito',
+                  text: 'Guardado',
+                  showConfirmButton: true,
+                  confirmButtonColor: '#10b981'
+              });
+          },
+          error: (e) => {
+              Swal.fire('Error', e.error?.message || 'Ocurrió un error', 'error');
+          }
+      });
   }
 
   deleteArea(area: any) {
-      if(confirm('¿Eliminar?')) {
-          this.service.deleteArea(area.idDepartamento).subscribe({
-              next: () => this.ngOnInit(),
-              error: (e) => alert(e.error?.message || "Error")
-          });
-      }
+      Swal.fire({
+          title: '¿Estás seguro?',
+          text: `Se eliminará el área: ${area.nombre}`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              this.service.deleteArea(area.idDepartamento).subscribe({
+                  next: () => {
+                      this.ngOnInit();
+                      Swal.fire('Eliminado!', 'El área ha sido eliminada.', 'success');
+                  },
+                  error: (e) => Swal.fire('Error', e.error?.message || "No se puede eliminar", 'error')
+              });
+          }
+      });
   }
 
   closeModal() { this.showModal = false; }

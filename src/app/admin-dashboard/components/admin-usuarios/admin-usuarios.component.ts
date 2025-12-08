@@ -70,17 +70,43 @@ import Swal from 'sweetalert2';
         <div class="modal-backdrop" *ngIf="showModal">
             <div class="modal-content">
                 <h3>{{ isEditMode ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
-                <div class="form-group"><label>Username</label><input type="email" [(ngModel)]="tempItem.username" class="search-input full-width"></div>
-                <div class="form-group" *ngIf="!isEditMode"><label>Contraseña</label><input type="password" [(ngModel)]="tempItem.hashPass" class="search-input full-width"></div>
-                <div class="form-group"><label>Rol</label><select [(ngModel)]="tempItem.rol.idRol" class="search-input full-width"><option [value]="1">ADMIN</option><option [value]="2">EMPLEADO</option></select></div>
-                <div class="modal-actions"><button (click)="closeModal()" class="btn-cancel">Cancelar</button><button (click)="guardarUsuario()" class="btn-save">Guardar</button></div>
+                
+                <div class="alert-info" style="background:#e0f2fe; color:#0369a1; padding:10px; border-radius:5px; margin-bottom:15px; font-size:0.9em;">
+                    <i class="fas fa-info-circle"></i> El usuario (email) debe existir previamente en la tabla de Empleados/Personas.
+                </div>
+
+                <div class="form-group">
+                    <label>Username (Email)</label>
+                    <input type="email" [(ngModel)]="tempItem.username" class="search-input full-width" placeholder="ejemplo@grupounion.com">
+                </div>
+                
+                <div class="form-group" *ngIf="!isEditMode">
+                    <label>Contraseña Temporal</label>
+                    <input type="password" [(ngModel)]="tempItem.hashPass" class="search-input full-width" placeholder="******">
+                </div>
+                
+                <div class="form-group">
+                    <label>Rol</label>
+                    <select [(ngModel)]="tempItem.rol.idRol" class="search-input full-width">
+                        <option [value]="1">ADMIN</option>
+                        <option [value]="2">EMPLEADO</option>
+                    </select>
+                </div>
+                
+                <div class="modal-actions">
+                    <button (click)="closeModal()" class="btn-cancel">Cancelar</button>
+                    <button (click)="guardarUsuario()" class="btn-save">Guardar</button>
+                </div>
             </div>
         </div>
+
         <div class="modal-backdrop" *ngIf="showDetailModal">
             <div class="modal-content">
                 <h3>Detalles</h3>
                 <div class="detail-row"><strong>Usuario:</strong> {{ selectedItem?.username }}</div>
                 <div class="detail-row"><strong>Rol:</strong> {{ selectedItem?.rol?.nombre }}</div>
+                <div class="detail-row"><strong>Estado:</strong> {{ selectedItem?.activo ? 'Activo' : 'Inactivo' }}</div>
+                <div class="detail-row"><strong>Persona Asignada:</strong> {{ selectedItem?.persona?.nombres }}</div>
                 <div class="modal-actions"><button (click)="closeDetailModal()" class="btn-save">Cerrar</button></div>
             </div>
         </div>
@@ -90,11 +116,14 @@ import Swal from 'sweetalert2';
 })
 export class AdminUsuariosComponent implements OnInit {
   listaUsuarios: any[] = [];
-  listaFiltrada: any[] = []; // LISTA PARA EL BUSCADOR
-  searchText: string = '';   // TEXTO DEL BUSCADOR
+  listaFiltrada: any[] = [];
+  searchText: string = '';
 
-  showModal = false; showDetailModal = false; isEditMode = false;
-  tempItem: any = { rol: { idRol: 2 } }; selectedItem: any = null;
+  showModal = false; 
+  showDetailModal = false; 
+  isEditMode = false;
+  tempItem: any = this.initEmpty(); 
+  selectedItem: any = null;
 
   constructor(private service: AdminCrudService, private cdr: ChangeDetectorRef) {}
 
@@ -103,12 +132,11 @@ export class AdminUsuariosComponent implements OnInit {
   cargarUsuarios() {
     this.service.getUsuarios().subscribe(data => {
         this.listaUsuarios = data;
-        this.filtrar(); // Inicializar lista filtrada
+        this.filtrar(); 
         this.cdr.detectChanges();
     });
   }
 
-  // --- LÓGICA DE FILTRADO ---
   filtrar() {
       if (!this.searchText) {
           this.listaFiltrada = this.listaUsuarios;
@@ -121,12 +149,109 @@ export class AdminUsuariosComponent implements OnInit {
       }
   }
 
-  // ... (RESTO DE TUS MÉTODOS IGUALES: toggle, guardar, delete, modal) ...
-  toggleEstado(u:any){/*tu código*/}
-  guardarUsuario(){/*tu código*/}
-  deleteUsuario(id:number){/*tu código*/}
-  openModal(m:any,i?:any){this.isEditMode=m==='editar';this.tempItem=i?JSON.parse(JSON.stringify(i)):{rol:{idRol:2},activo:true,persona:{idPersona:1}};if(this.isEditMode)this.tempItem.hashPass='';this.showModal=true;}
-  verDetalles(i:any){this.selectedItem=i;this.showDetailModal=true;}
-  closeModal(){this.showModal=false;}
-  closeDetailModal(){this.showDetailModal=false;}
+  toggleEstado(u: any) {
+      const nuevoEstado = !u.activo;
+      const original = u.activo;
+      u.activo = nuevoEstado; // Optimista
+
+      this.service.updateUsuario(u).subscribe({
+          next: () => {
+              const msg = nuevoEstado ? 'Usuario activado' : 'Usuario desactivado';
+              Swal.fire({
+                  toast: true,
+                  position: 'top-end',
+                  icon: 'success',
+                  title: msg,
+                  showConfirmButton: false,
+                  timer: 2000
+              });
+          },
+          error: () => {
+              u.activo = original; // Revertir
+              Swal.fire('Error', 'No se pudo cambiar el estado', 'error');
+          }
+      });
+  }
+
+  guardarUsuario() {
+      if (!this.tempItem.username || (!this.isEditMode && !this.tempItem.hashPass)) {
+          Swal.fire('Atención', 'Complete todos los campos', 'warning');
+          return;
+      }
+
+      // Asegurar que el rol viene como objeto
+      if (typeof this.tempItem.rol.idRol === 'string') {
+          this.tempItem.rol.idRol = parseInt(this.tempItem.rol.idRol);
+      }
+
+      const request = this.isEditMode 
+          ? this.service.updateUsuario(this.tempItem) 
+          : this.service.createUsuario(this.tempItem);
+
+      request.subscribe({
+          next: () => {
+              this.cargarUsuarios();
+              this.closeModal();
+              // NOTIFICACIÓN VISUAL TIPO IMAGEN 1
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Éxito',
+                  text: 'Guardado',
+                  showConfirmButton: true,
+                  confirmButtonColor: '#10b981'
+              });
+          },
+          error: (e) => {
+              // AQUÍ SE MUESTRA POR QUÉ FALLÓ (Ej: Correo no existe en Persona)
+              const msg = e.error?.message || 'Error desconocido al guardar';
+              Swal.fire('Error', msg, 'error');
+          }
+      });
+  }
+
+  deleteUsuario(id: number) {
+      Swal.fire({
+          title: '¿Eliminar Usuario?',
+          text: "Esta acción no se puede deshacer.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          confirmButtonText: 'Sí, eliminar'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              this.service.deleteUsuario(id).subscribe({
+                  next: () => {
+                      this.cargarUsuarios();
+                      Swal.fire('Eliminado', 'El usuario ha sido eliminado', 'success');
+                  },
+                  error: (e) => Swal.fire('Error', e.error?.message, 'error')
+              });
+          }
+      });
+  }
+
+  initEmpty() {
+      return { 
+          username: '', 
+          hashPass: '', 
+          activo: true, 
+          rol: { idRol: 2 } // Por defecto Empleado
+      };
+  }
+
+  openModal(m: 'crear' | 'editar', i?: any) {
+      this.isEditMode = m === 'editar';
+      if (this.isEditMode && i) {
+          // Clonar objeto para no editar en tabla directamente
+          this.tempItem = JSON.parse(JSON.stringify(i));
+          this.tempItem.hashPass = ''; // Limpiar pass en edición
+      } else {
+          this.tempItem = this.initEmpty();
+      }
+      this.showModal = true;
+  }
+
+  verDetalles(i: any) { this.selectedItem = i; this.showDetailModal = true; }
+  closeModal() { this.showModal = false; }
+  closeDetailModal() { this.showDetailModal = false; }
 }
