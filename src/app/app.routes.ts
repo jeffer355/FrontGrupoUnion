@@ -2,10 +2,8 @@ import { Routes } from '@angular/router';
 import { authGuard } from './auth/guards/auth.guard';
 
 export const routes: Routes = [
-  // Redirección inicial
   { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
   
-  // Rutas de Autenticación
   {
     path: 'auth',
     loadChildren: () => import('./auth/auth.routes').then(m => m.AUTH_ROUTES)
@@ -28,20 +26,17 @@ export const routes: Routes = [
     children: [
         { path: '', redirectTo: 'home', pathMatch: 'full' },
         
-        // Vista Principal (Dashboard con tarjetas)
+        // Vistas existentes
         { path: 'home', loadComponent: () => import('./admin-dashboard/components/admin-home/admin-home.component').then(m => m.AdminHomeComponent) },
-        
-        // Gestión de Usuarios
         { path: 'usuarios', loadComponent: () => import('./admin-dashboard/components/admin-usuarios/admin-usuarios.component').then(m => m.AdminUsuariosComponent) },
-        
-        // Gestión de Áreas
         { path: 'areas', loadComponent: () => import('./admin-dashboard/components/admin-areas/admin-areas.component').then(m => m.AdminAreasComponent) },
-        
-        // Gestión de Empleados
         { path: 'empleados', loadComponent: () => import('./admin-dashboard/components/admin-empleados/admin-empleados.component').then(m => m.AdminEmpleadosComponent) },
+        { path: 'reportes', loadComponent: () => import('./admin-dashboard/components/reportes-asistencia/reportes-asistencia.component').then(m => m.ReportesAsistenciaComponent) },
         
-        // --- NUEVA RUTA DE REPORTES/ASISTENCIA ---
-        { path: 'reportes', loadComponent: () => import('./admin-dashboard/components/reportes-asistencia/reportes-asistencia.component').then(m => m.ReportesAsistenciaComponent) }
+        // --- NUEVAS RUTAS SEPARADAS (LO QUE PEDISTE) ---
+        { path: 'boletas', loadComponent: () => import('./admin-dashboard/components/admin-boletas/admin-boletas.component').then(m => m.AdminBoletasComponent) },
+        { path: 'documentos', loadComponent: () => import('./admin-dashboard/components/admin-documentos/admin-documentos.component').then(m => m.AdminDocumentosComponent) },
+        { path: 'solicitudes', loadComponent: () => import('./admin-dashboard/components/admin-solicitudes/admin-solicitudes.component').then(m => m.AdminSolicitudesComponent) }
     ]
   }
 ];

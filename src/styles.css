@@ -36,3 +36,69 @@ body {
 .swal2-container {
     z-index: 99999 !important;
 }
+
+
+/* src/styles.css */
+
+/* CONTENEDORES */
+.crud-container {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    margin-top: 20px;
+    animation: fadeIn 0.5s ease;
+}
+
+.crud-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #f4f4f4;
+    padding-bottom: 15px;
+}
+
+.crud-header h2 {
+    color: #003057;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* TABLAS MODERNAS */
+.table-responsive { overflow-x: auto; }
+.modern-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+.modern-table th {
+    color: #8898aa; font-weight: 600; text-transform: uppercase;
+    font-size: 0.85rem; padding: 15px; border: none; text-align: left;
+}
+.modern-table tbody tr {
+    background: #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    transition: transform 0.2s;
+}
+.modern-table tbody tr:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+.modern-table td { padding: 15px; vertical-align: middle; color: #525f7f; border-top: 1px solid #f4f4f4; }
+
+/* FORMULARIOS Y FILTROS */
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #555; }
+.form-control {
+    width: 100%; padding: 10px; border: 1px solid #e9ecef;
+    border-radius: 6px; outline: none; transition: border 0.3s;
+}
+.form-control:focus { border-color: #003057; }
+
+/* BOTONES */
+.btn-primary { background: #003057; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+.btn-success { background: #2dce89; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+.btn-danger { background: #f5365c; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+.btn-warning { background: #fb6340; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+
+/* BADGES */
+.badge { padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+.bg-success { background: #dfffe5; color: #2dce89; }
+.bg-warning { background: #fff5d9; color: #fb6340; }
+.bg-danger { background: #feebe9; color: #f5365c; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
