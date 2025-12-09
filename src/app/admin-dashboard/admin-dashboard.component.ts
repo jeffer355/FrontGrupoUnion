@@ -31,7 +31,7 @@ import { DashboardService } from '../services/dashboard.service';
               <li><a routerLink="/admin/empleados" routerLinkActive="active" class="nav-link"><i class="fas fa-user-tie"></i> Empleados</a></li>
               <li><a routerLink="/admin/reportes" routerLinkActive="active" class="nav-link"><i class="fas fa-clipboard-check"></i> Asistencias</a></li>
               
-              
+              <div style="margin: 15px 0; border-top: 1px solid rgba(255,255,255,0.1);"></div>
               
               <li><a routerLink="/admin/boletas" routerLinkActive="active" class="nav-link"><i class="fas fa-receipt"></i> Boletas</a></li>
               <li><a routerLink="/admin/documentos" routerLinkActive="active" class="nav-link"><i class="fas fa-folder"></i> Documentos</a></li>
