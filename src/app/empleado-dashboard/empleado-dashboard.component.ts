@@ -7,7 +7,7 @@ import { DashboardService } from '../services/dashboard.service';
 
 // --- CORRECCIÓN AQUÍ ---
 // Como creaste el archivo en 'admin-dashboard', cambiamos la ruta para buscarlo allá.
-import { AsistenciaComponent } from '../admin-dashboard/components/asistencia/asistencia.component';
+import { AsistenciaComponent } from '../empleado-dashboard/components/asistencia/asistencia.component';
 
 interface EmpleadoData {
   nombres: string;

@@ -8,7 +8,6 @@ import { DashboardService } from '../services/dashboard.service';
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  // Usamos template en línea para asegurar que se aplique el cambio visual
   template: `
     <div class="layout-wrapper">
       <div class="sidebar sidebar-admin" [class.active]="isSidebarActive" id="sidebar">
@@ -30,11 +29,32 @@ import { DashboardService } from '../services/dashboard.service';
 
           <nav>
             <ul>
-              <li><a routerLink="/admin/home" routerLinkActive="active" class="nav-link"><i class="fas fa-home"></i> Principal</a></li>
-              <li><a routerLink="/admin/usuarios" routerLinkActive="active" class="nav-link"><i class="fas fa-users"></i> Usuarios</a></li>
-              <li><a routerLink="/admin/areas" routerLinkActive="active" class="nav-link"><i class="fas fa-building"></i> Áreas</a></li>
-              <li><a routerLink="/admin/empleados" routerLinkActive="active" class="nav-link"><i class="fas fa-user-tie"></i> Empleados</a></li>
-              <li><a href="javascript:void(0)" class="nav-link"><i class="fas fa-clipboard-check"></i> Asistencias</a></li>
+              <li>
+                <a routerLink="/admin/home" routerLinkActive="active" class="nav-link">
+                    <i class="fas fa-home"></i> Principal
+                </a>
+              </li>
+              <li>
+                <a routerLink="/admin/usuarios" routerLinkActive="active" class="nav-link">
+                    <i class="fas fa-users"></i> Usuarios
+                </a>
+              </li>
+              <li>
+                <a routerLink="/admin/areas" routerLinkActive="active" class="nav-link">
+                    <i class="fas fa-building"></i> Áreas
+                </a>
+              </li>
+              <li>
+                <a routerLink="/admin/empleados" routerLinkActive="active" class="nav-link">
+                    <i class="fas fa-user-tie"></i> Empleados
+                </a>
+              </li>
+              
+              <li>
+                <a routerLink="/admin/reportes" routerLinkActive="active" class="nav-link">
+                    <i class="fas fa-clipboard-check"></i> Asistencias
+                </a>
+              </li>
             </ul>
           </nav>
         </div>
@@ -81,7 +101,7 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAdminData();
-    // Suscripción para cambios en tiempo real
+    // Suscripción para cambios en tiempo real de la foto
     this.dashboardService.currentAdminPhoto$.subscribe(photoUrl => {
       if (photoUrl) {
         this.adminPhoto = photoUrl;
