@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // 1. IMPORTAR ChangeDetectorRef
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GestionCorporativaService } from '../../../services/gestion-corporativa.service';
@@ -92,20 +92,15 @@ import Swal from 'sweetalert2';
   styles: [`
     .upload-card { background: #f8f9fe; border: 1px solid #eef2f7; border-radius: 12px; padding: 25px; margin-bottom: 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
     .card-title { font-size: 1.1rem; color: #fb6340; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #e9ecef; padding-bottom: 10px; }
-    
     .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
     .full-width { grid-column: 1 / -1; }
     .file-input { background: white; padding: 8px; }
-    
     .actions-right { display: flex; justify-content: flex-end; margin-top: 15px; }
-    
     .history-section h3 { font-size: 1.3rem; color: #32325d; margin-bottom: 15px; }
-    
     .badge.bg-info { background: #11cdef; color: white; }
     .badge.bg-admin { background: #e0e7ff; color: #4338ca; }
     .btn-icon-view { background: #2dce89; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
     .text-center { text-align: center; padding: 30px; color: #8898aa; }
-
     @media (max-width: 900px) { .form-grid { grid-template-columns: 1fr; } }
   `]
 })
@@ -117,15 +112,30 @@ export class AdminDocumentosComponent implements OnInit {
   file: File | null = null;
   uploading = false;
 
-  constructor(private service: GestionCorporativaService, private adminService: AdminCrudService) {}
+  constructor(
+      private service: GestionCorporativaService, 
+      private adminService: AdminCrudService,
+      private cdr: ChangeDetectorRef // 2. INYECTARLO AQUÍ
+  ) {}
 
   ngOnInit() { 
       this.adminService.getEmpleados().subscribe(d => this.empleados = d); 
       this.cargarHistorial();
+
+      // Suscripción automática
+      this.service.refreshNeeded$.subscribe(() => {
+        this.cargarHistorial();
+      });
   }
 
   cargarHistorial() {
-      this.service.getHistorialDocumentosAdmin().subscribe(d => this.historial = d);
+      // 3. USAR .subscribe({ next: ... }) Y FORZAR DETECCIÓN
+      this.service.getHistorialDocumentosAdmin().subscribe({
+          next: (d) => {
+              this.historial = d;
+              this.cdr.detectChanges(); // <-- ESTO ES LA CLAVE
+          }
+      });
   }
 
   onFile(e: any) { this.file = e.target.files[0]; }
@@ -144,9 +154,11 @@ export class AdminDocumentosComponent implements OnInit {
         next: () => {
             Swal.fire('Listo', 'Documento guardado', 'success');
             this.uploading = false;
-            this.cargarHistorial();
             this.file = null;
             this.data.nombre = '';
+            
+            // 4. LLAMAR MANUALMENTE POR SI ACASO
+            this.cargarHistorial();
         },
         error: () => {
             Swal.fire('Error', 'No se pudo subir', 'error');

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // IMPORTAR
 import { CommonModule } from '@angular/common';
 import { GestionCorporativaService } from '../../../services/gestion-corporativa.service';
 import Swal from 'sweetalert2';
@@ -55,12 +55,26 @@ import Swal from 'sweetalert2';
 })
 export class AdminSolicitudesComponent implements OnInit {
   solicitudes: any[] = [];
-  constructor(private service: GestionCorporativaService) {}
   
-  ngOnInit() { this.cargar(); }
+  constructor(
+      private service: GestionCorporativaService,
+      private cdr: ChangeDetectorRef // INYECTAR
+  ) {}
+  
+  ngOnInit() { 
+      this.cargar(); 
+      this.service.refreshNeeded$.subscribe(() => {
+          this.cargar();
+      });
+  }
   
   cargar() { 
-      this.service.getAllSolicitudesAdmin().subscribe(d => this.solicitudes = d); 
+      this.service.getAllSolicitudesAdmin().subscribe({
+          next: (d) => {
+              this.solicitudes = d;
+              this.cdr.detectChanges(); // FORZAR PINTADO
+          }
+      }); 
   }
 
   ver(url: string) { if(url) window.open(url, '_blank'); }

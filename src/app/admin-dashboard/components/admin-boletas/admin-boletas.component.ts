@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // <--- IMPORTANTE: ChangeDetectorRef
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GestionCorporativaService } from '../../../services/gestion-corporativa.service';
@@ -125,15 +125,28 @@ export class AdminBoletasComponent implements OnInit {
   file: File | null = null;
   uploading = false;
 
-  constructor(private service: GestionCorporativaService, private adminService: AdminCrudService) {}
+  constructor(
+      private service: GestionCorporativaService, 
+      private adminService: AdminCrudService,
+      private cdr: ChangeDetectorRef // <--- INYECTADO AQUÍ
+  ) {}
 
   ngOnInit() {
     this.adminService.getEmpleados().subscribe(d => this.empleados = d);
+    
+    // Carga inicial
     this.cargarHistorial();
   }
 
   cargarHistorial() {
-      this.service.getHistorialBoletasAdmin().subscribe(d => this.historial = d);
+      this.service.getHistorialBoletasAdmin().subscribe({
+          next: (d) => {
+              this.historial = d;
+              // FORZAR ACTUALIZACIÓN VISUAL
+              this.cdr.detectChanges(); 
+          },
+          error: (e) => console.error(e)
+      });
   }
 
   onFile(e: any) { this.file = e.target.files[0]; }
@@ -148,12 +161,22 @@ export class AdminBoletasComponent implements OnInit {
     fd.append('file', this.file);
 
     this.uploading = true;
+
     this.service.uploadBoleta(fd).subscribe({
         next: () => {
-            Swal.fire('Éxito', 'Boleta publicada', 'success');
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Boleta publicada correctamente',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            
             this.uploading = false;
-            this.cargarHistorial(); 
             this.file = null; 
+            
+            // LLAMADA EXPLÍCITA PARA ACTUALIZAR TABLA
+            this.cargarHistorial();
         },
         error: () => {
             Swal.fire('Error', 'Fallo al subir', 'error');
