@@ -1,99 +1,38 @@
 /* =========================================
    1. ESTILOS GENERALES Y LAYOUT
    ========================================= */
-.layout-wrapper {
-  display: flex;
-  width: 100vw;
-  min-height: 100vh;
-  overflow-x: hidden;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f7f6;
-}
-
-.main-content {
-  flex-grow: 1;
-  background-color: #f4f7f6;
-  overflow-y: auto;
-  height: 100vh;
-  padding: 0;
-}
-
+.layout-wrapper { display: flex; width: 100vw; min-height: 100vh; overflow-x: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; }
+.main-content { flex-grow: 1; background-color: #f4f7f6; overflow-y: auto; height: 100vh; padding: 0; }
 .page-content { padding: 25px; }
 
 /* =========================================
    2. SIDEBAR (ADMIN THEME - ROJO)
    ========================================= */
-.sidebar.sidebar-admin {
-  width: 250px;
-  padding: 20px;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  flex-shrink: 0;
-  transition: margin-left 0.3s ease;
-  z-index: 1000;
-  background-color: #e60000; /* ROJO CORPORATIVO */
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 20px;
-  margin-bottom: 10px;
-  position: relative;
-  top: -15px;
-}
-
+.sidebar.sidebar-admin { width: 250px; padding: 20px; color: white; display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; transition: margin-left 0.3s ease; z-index: 1000; background-color: #e60000; }
+.sidebar-header { display: flex; align-items: center; gap: 12px; padding: 0 20px; margin-bottom: 10px; position: relative; top: -15px; }
 .sidebar-logo { width: 40px; height: 40px; object-fit: contain; }
 .sidebar-header span { font-size: 1.1em; font-weight: 600; color: white; }
 
-/* --- PERFIL SIDEBAR (FOTO CUADRADA REDONDEADA) --- */
-.sidebar .profile-info {
-  text-align: center; background-color: transparent; padding: 0;
-  box-shadow: none; border-radius: 0; margin-bottom: 20px; color: white;
-}
-
+/* --- PERFIL SIDEBAR (RESPALDO CSS) --- */
+.sidebar .profile-info { text-align: center; background-color: transparent; padding: 0; box-shadow: none; border-radius: 0; margin-bottom: 20px; color: white; }
 .sidebar .profile-info img {
-  width: 100px; 
-  height: 100px; 
-  /* MANTENIDO: 20px para que sea cuadrada con bordes redondos */
-  border-radius: 20px; 
-  background-color: #eee; 
-  margin-bottom: 10px;
-  object-fit: cover;
+  /* ESTO APLICA SI NO HUBIERA ESTILO EN LINEA */
+  border-radius: 20px !important; 
   box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-  border: 2px solid rgba(255,255,255,0.1);
 }
-
 .sidebar .profile-info h3 { font-size: 1.1rem; margin-bottom: 5px; color: white; }
 .sidebar .profile-info a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9em; }
 
 /* Navigation */
 nav ul { list-style: none; padding-left: 0; display: inline-block; position: relative; left: 45px; }
 nav ul li { text-align: left; margin-bottom: 8px; }
-
-.nav-link {
-  color: white; text-decoration: none; padding: 10px; display: block;
-  border-radius: 15px; transition: all 0.3s ease; cursor: pointer;
-}
-.nav-link:hover, .nav-link.active {
-  background-color: rgba(255,255,255,0.15); transform: translateX(5px);
-}
-
-.logout-button {
-  background: none; border: none; color: white; cursor: pointer; padding: 10px;
-  text-align: left; width: 100%; border-radius: 5px; font-size: 1em;
-}
+.nav-link { color: white; text-decoration: none; padding: 10px; display: block; border-radius: 15px; transition: all 0.3s ease; cursor: pointer; }
+.nav-link:hover, .nav-link.active { background-color: rgba(255,255,255,0.15); transform: translateX(5px); }
+.logout-button { background: none; border: none; color: white; cursor: pointer; padding: 10px; text-align: left; width: 100%; border-radius: 5px; font-size: 1em; }
 .logout-button:hover { background-color: rgba(255,255,255,0.1); }
 
 /* Top Bar */
-.top-bar {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 20px; background-color: #ffffff; border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: #333333;
-}
+.top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background-color: #ffffff; border-bottom: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: #333333; }
 .top-bar-left { display: flex; align-items: center; gap: 15px; }
 .top-bar-title { font-size: 1.5em; font-weight: 600; margin: 0; color: #333333; }
 .top-bar-right { display: flex; align-items: center; }
@@ -101,90 +40,38 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 .bell-icon { font-size: 1.5em; cursor: pointer; color: #333333; }
 .menu-toggle { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: #333333; }
 
-
 /* =========================================
    3. ESTILOS TARJETAS (HOME)
    ========================================= */
-.stats-cards-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px; margin-bottom: 30px;
-}
-.stat-card {
-  background-color: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  padding: 20px; text-align: center; color: white; position: relative; overflow: hidden;
-}
-.stat-card .card-kpi-number {
-  position: absolute; top: -10px; left: 10px; font-size: 4em; font-weight: bold;
-  color: rgba(255, 255, 255, 0.3); z-index: 1;
-}
-.stat-card h3 {
-  font-size: 1em; margin-top: 30px; margin-bottom: 10px; color: white; position: relative; z-index: 2;
-}
-.stat-card a {
-  color: rgba(255, 255, 255, 0.8); text-decoration: none; font-size: 0.9em;
-  display: block; text-align: center; position: relative; z-index: 2; cursor: pointer;
-}
+.stats-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.stat-card { background-color: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); padding: 20px; text-align: center; color: white; position: relative; overflow: hidden; }
+.stat-card .card-kpi-number { position: absolute; top: -10px; left: 10px; font-size: 4em; font-weight: bold; color: rgba(255, 255, 255, 0.3); z-index: 1; }
+.stat-card h3 { font-size: 1em; margin-top: 30px; margin-bottom: 10px; color: white; position: relative; z-index: 2; }
+.stat-card a { color: rgba(255, 255, 255, 0.8); text-decoration: none; font-size: 0.9em; display: block; text-align: center; position: relative; z-index: 2; cursor: pointer; }
 .stat-card a:hover { color: white; text-decoration: underline; }
-
-.stat-card.card-users { background-color: #3f51b5; }
-.stat-card.card-areas { background-color: #607d8b; }
-.stat-card.card-employees { background-color: #00bcd4; }
-.stat-card.card-attendances { background-color: #303f9f; }
-
+.stat-card.card-users { background-color: #3f51b5; } .stat-card.card-areas { background-color: #607d8b; } .stat-card.card-employees { background-color: #00bcd4; } .stat-card.card-attendances { background-color: #303f9f; }
 
 /* =========================================
    4. CRUD CONTAINER & TABLAS
    ========================================= */
-.crud-container {
-    background: white; border-radius: 12px; padding: 25px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05); animation: fadeIn 0.4s ease-in-out;
-}
+.crud-container { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); animation: fadeIn 0.4s ease-in-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
 .crud-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.crud-header h2 { margin: 0; font-size: 1.5rem; color: #333; }
-
-/* BOTÓN NUEVO (ROJO) */
-.btn-add {
-    background-color: #e60000; color: white; border: none; padding: 10px 20px;
-    border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.3s;
-    display: flex; align-items: center; gap: 8px;
-}
-.btn-add:hover { background-color: #cc0000; }
-
+.btn-add { background-color: #e60000; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 .table-responsive { overflow-x: auto; }
 .modern-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-.modern-table thead th {
-    text-align: left; padding: 15px; color: #888; font-size: 0.85rem;
-    text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #f0f0f0;
-}
-.modern-table tbody tr {
-    background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.modern-table tbody tr:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-.modern-table td {
-    padding: 15px; vertical-align: middle; color: #333;
-    border-top: 1px solid #f9f9f9; border-bottom: 1px solid #f9f9f9;
-}
+.modern-table th { text-align: left; padding: 15px; color: #888; font-size: 0.85rem; border-bottom: 2px solid #f0f0f0; }
+.modern-table td { padding: 15px; vertical-align: middle; color: #333; border-top: 1px solid #f9f9f9; border-bottom: 1px solid #f9f9f9; }
 .modern-table td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; border-left: 1px solid #f9f9f9; }
 .modern-table td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-right: 1px solid #f9f9f9; }
-
 .user-cell { display: flex; align-items: center; gap: 10px; }
 
-/* --- FOTO PEQUEÑA EN LA TABLA (MANTENIDA CIRCULAR) --- */
+/* --- FOTO PEQUEÑA TABLA (CIRCULAR) --- */
 .user-avatar-small {
-    width: 40px; 
-    height: 40px; 
-    background-color: #e60000; 
-    color: white;
-    border-radius: 50%; /* CIRCULAR */
-    display: flex; 
-    justify-content: center; 
-    align-items: center;
-    font-weight: bold; 
-    font-size: 0.9rem;
-    object-fit: cover;
+    width: 40px; height: 40px; background-color: #e60000; color: white;
+    border-radius: 50% !important; /* FORZAR CÍRCULO */
+    display: flex; justify-content: center; align-items: center;
+    font-weight: bold; font-size: 0.9rem; object-fit: cover;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -192,116 +79,24 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 .badge-role { background-color: #eef2ff; color: #4338ca; }
 .badge-active { background-color: #dcfce7; color: #166534; }
 .badge-inactive { background-color: #fee2e2; color: #991b1b; }
-
-.action-btn {
-    background: none; border: none; cursor: pointer; font-size: 1.1rem;
-    margin-right: 10px; transition: color 0.2s;
-}
-.action-btn.view { color: #10b981; }
-.action-btn.edit { color: #3b82f6; }
-.action-btn.delete { color: #ef4444; }
+.action-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; margin-right: 10px; }
+.action-btn.view { color: #10b981; } .action-btn.edit { color: #3b82f6; } .action-btn.delete { color: #ef4444; }
 
 /* MODALES */
-.modal-backdrop {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background-color: rgba(0, 0, 0, 0.85); 
-    backdrop-filter: blur(3px);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 9999 !important;
-}
-
-.modal-content {
-    background: white; border-radius: 12px; padding: 30px;
-    width: auto; max-width: 90%; min-width: 400px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
-    animation: zoomIn 0.3s ease; position: relative;
-}
-
-@keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-
-/* Títulos de Modal (Negro Oscuro) */
-.modal-content h3 {
-    color: #0c0c0c !important;
-    margin-top: 0;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #0d0d0e;
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-.modal-actions {
-    display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;
-}
-
-/* Títulos de Sección en Formularios (Rojo) */
-.section-title {
-    color: #e60000 !important;
-    margin-top: 20px; margin-bottom: 15px; display: block; width: 100%;
-    font-size: 0.9rem; font-weight: bold; text-transform: uppercase;
-    letter-spacing: 1px; border-bottom: 2px solid #f3f4f6; padding-bottom: 5px;
-}
-
-.search-input.full-width {
-    width: 100%; padding: 12px 15px; border: 1px solid #ddd;
-    border-radius: 8px; font-size: 0.95rem; background-color: #fff;
-    box-sizing: border-box; margin-bottom: 0;
-}
-.search-input.full-width:focus {
-    outline: none; border-color: #e60000; box-shadow: 0 0 0 3px rgba(230, 0, 0, 0.1);
-}
-
-.form-group { margin-bottom: 15px; }
-.form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #444; font-size: 0.9rem; }
-
-/* Botones Guardar/Cancelar */
-.btn-save { background: #e60000; color: white; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-.btn-save:hover { background: #c00000; }
-.btn-cancel { background: #f3f4f6; color: #333; border: 1px solid #ddd; padding: 10px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-.btn-cancel:hover { background: #e5e7eb; }
-
-.alert-error { background-color: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #fca5a5; }
-.detail-row { padding: 8px 0; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; }
-
-@media (max-width: 600px) {
-  .sidebar.sidebar-admin { width: 80%; max-width: 280px; height: 100vh; position: fixed; top: 0; left: 0; margin-left: -100%; }
-  .sidebar.active { margin-left: 0; }
-  .menu-toggle { display: block; }
-  .page-content { padding: 10px; }
-}
-
-/* --- TOOLBAR Y BUSCADOR --- */
+.modal-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(3px); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+.modal-content { background: white; border-radius: 12px; padding: 30px; width: auto; max-width: 90%; min-width: 400px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); }
+.modal-content h3 { color: #0c0c0c; margin-top: 0; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #0d0d0e; font-size: 1.5rem; font-weight: 700; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px; }
+.search-input.full-width { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
+.btn-save { background: #e60000; color: white; padding: 10px 24px; border-radius: 6px; border:none; cursor:pointer;}
+.btn-cancel { background: #f3f4f6; color: #333; padding: 10px 24px; border-radius: 6px; border:1px solid #ddd; cursor:pointer;}
 .toolbar { display: flex; gap: 15px; align-items: center; }
-.search-wrapper { position: relative; }
-.search-input-table { padding: 8px 15px 8px 35px; border: 1px solid #ddd; border-radius: 20px; width: 250px; outline: none; transition: all 0.3s; }
-.search-input-table:focus { border-color: #e60000; box-shadow: 0 0 5px rgba(230,0,0,0.1); }
-.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; font-size: 0.9rem; }
+.search-input-table { padding: 8px 15px 8px 35px; border: 1px solid #ddd; border-radius: 20px; width: 250px; outline: none; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; }
 
-/* =========================================
-   ARREGLO BOTONES EXCEL/PDF (ESTILO NEUTRO)
-   ========================================= */
-.btn-export {
-    background-color: #fff; /* Fondo blanco neutro */
-    border: 1px solid #ddd; /* Borde sutil */
-    color: #333; /* Texto oscuro */
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
+@media (max-width: 600px) { .sidebar.sidebar-admin { margin-left: -100%; position:fixed; height:100vh;} .sidebar.active { margin-left: 0; } .menu-toggle { display: block; } }
 
-.btn-export:hover {
-    background-color: #f9fafb;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    border-color: #ccc;
-}
-
-/* SOLO LOS ICONOS TIENEN COLOR AHORA */
-.btn-excel i { color: #10b981; font-size: 1.1em; } /* Icono Verde */
-.btn-pdf i { color: #ef4444; font-size: 1.1em; }   /* Icono Rojo */
+/* BOTONES EXPORTAR NEUTROS */
+.btn-export { background-color: #fff; border: 1px solid #ddd; color: #333; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.btn-export:hover { background-color: #f9fafb; border-color: #ccc; }
+.btn-excel i { color: #10b981; } .btn-pdf i { color: #ef4444; }
