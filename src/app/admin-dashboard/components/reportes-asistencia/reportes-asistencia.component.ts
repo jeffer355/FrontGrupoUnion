@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AsistenciaService } from '../../../services/asistencia.service';
@@ -43,6 +43,9 @@ import Swal from 'sweetalert2';
                                 <button class="action-btn view" (click)="verIndividual(item)" title="Ver Historial"><i class="fas fa-history"></i></button>
                             </td>
                         </tr>
+                        <tr *ngIf="listaGeneral.length === 0">
+                            <td colspan="5" style="text-align: center; padding: 20px;">No hay datos para esta fecha.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -51,7 +54,7 @@ import Swal from 'sweetalert2';
         <div *ngIf="viewMode === 'INDIVIDUAL'">
             <div class="crud-header">
                 <div class="header-left">
-                    <button class="btn-back" (click)="viewMode = 'GENERAL'"><i class="fas fa-arrow-left"></i></button>
+                    <button class="btn-back" (click)="volverAGeneral()"><i class="fas fa-arrow-left"></i></button>
                     <div>
                         <h2>{{ empleadoSeleccionado?.empleadoNombre }}</h2>
                         <small>Historial Completo</small>
@@ -125,7 +128,7 @@ import Swal from 'sweetalert2';
   `,
   styles: [`
     .header-left { display: flex; align-items: center; gap: 15px; }
-    .btn-back { background: none; border: 1px solid #ccc; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; }
+    .btn-back { background: none; border: 1px solid #ccc; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
     .stat-card { padding: 15px; border-radius: 10px; color: white; text-align: center; }
     .stat-card h3 { font-size: 2rem; margin: 0; }
@@ -155,23 +158,42 @@ export class ReportesAsistenciaComponent implements OnInit {
   showModal = false;
   itemEdit: any = {};
 
-  constructor(private service: AsistenciaService) {}
+  constructor(
+    private service: AsistenciaService,
+    private cdr: ChangeDetectorRef // IMPORTANTE: Inyectar para arreglar el doble clic
+  ) {}
 
   ngOnInit() {
     this.cargarGeneral();
   }
 
   cargarGeneral() {
-    this.service.getReporteDiario(this.filtroFecha).subscribe(data => this.listaGeneral = data);
+    this.service.getReporteDiario(this.filtroFecha).subscribe({
+      next: (data) => {
+        this.listaGeneral = data;
+        this.cdr.detectChanges(); // SOLUCIÓN AL DOBLE CLIC: Forzar actualización de vista
+      },
+      error: (e) => console.error(e)
+    });
   }
 
   verIndividual(item: any) {
     this.empleadoSeleccionado = item;
     this.viewMode = 'INDIVIDUAL';
-    this.service.getHistorialEmpleado(item.idEmpleado).subscribe(data => {
-      this.historialIndividual = data;
-      this.calcularStats();
+    
+    this.service.getHistorialEmpleado(item.idEmpleado).subscribe({
+      next: (data) => {
+        this.historialIndividual = data;
+        this.calcularStats();
+        this.cdr.detectChanges(); // SOLUCIÓN AL DOBLE CLIC
+      },
+      error: (e) => console.error(e)
     });
+  }
+
+  volverAGeneral() {
+    this.viewMode = 'GENERAL';
+    this.cargarGeneral(); // Recargar datos frescos
   }
 
   calcularStats() {
@@ -215,9 +237,36 @@ export class ReportesAsistenciaComponent implements OnInit {
     return 'bg-green';
   }
 
-  // --- EXPORTAR GENERAL ---
+  // --- EXPORTAR GENERAL CON AUTO-SIZE ---
   exportarGeneralExcel() {
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.listaGeneral);
+    if(this.listaGeneral.length === 0) return;
+
+    // 1. Preparar datos limpios para Excel
+    const datosExcel = this.listaGeneral.map(item => ({
+      'Empleado': item.empleadoNombre,
+      'Departamento': item.departamento,
+      'Fecha': this.filtroFecha,
+      'Entrada': item.horaEntrada ? new Date(item.horaEntrada).toLocaleTimeString() : '-',
+      'Salida': item.horaSalida ? new Date(item.horaSalida).toLocaleTimeString() : '-',
+      'Estado': item.estado || 'INASISTENCIA',
+      'IP Origen': item.ip || '-'
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(datosExcel);
+
+    // 2. CALCULAR ANCHO DE COLUMNAS AUTOMÁTICO
+    const columnWidths = Object.keys(datosExcel[0]).map(key => {
+        // Calcular longitud máxima entre el encabezado y el contenido más largo
+        const maxContentLength = Math.max(
+            key.length,
+            ...datosExcel.map((row: any) => (row[key] ? row[key].toString().length : 0))
+        );
+        return { wch: maxContentLength + 5 }; // +5 de espacio extra
+    });
+    
+    ws['!cols'] = columnWidths;
+
+    // 3. Guardar
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Reporte Diario');
     XLSX.writeFile(wb, `Reporte_${this.filtroFecha}.xlsx`);
@@ -239,16 +288,30 @@ export class ReportesAsistenciaComponent implements OnInit {
     doc.save(`Reporte_${this.filtroFecha}.pdf`);
   }
 
-  // --- EXPORTAR INDIVIDUAL ---
+  // --- EXPORTAR INDIVIDUAL CON AUTO-SIZE ---
   exportarIndividualExcel() {
+      if(this.historialIndividual.length === 0) return;
+
       const data = this.historialIndividual.map(h => ({
-          Fecha: h.fecha,
-          Entrada: h.horaEntrada,
-          Salida: h.horaSalida,
-          Estado: h.estado,
-          Observacion: h.observacion
+          'Fecha': h.fecha,
+          'Entrada': h.horaEntrada ? new Date(h.horaEntrada).toLocaleTimeString() : '-',
+          'Salida': h.horaSalida ? new Date(h.horaSalida).toLocaleTimeString() : '-',
+          'Estado': h.estado,
+          'Observación': h.observacion || ''
       }));
+
       const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+
+      // Calcular Ancho
+      const columnWidths = Object.keys(data[0]).map(key => {
+        const maxContentLength = Math.max(
+            key.length,
+            ...data.map((row: any) => (row[key] ? row[key].toString().length : 0))
+        );
+        return { wch: maxContentLength + 5 };
+      });
+      ws['!cols'] = columnWidths;
+
       const wb: XLSX.WorkBook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Historial');
       XLSX.writeFile(wb, `Historial_${this.empleadoSeleccionado.empleadoNombre}.xlsx`);

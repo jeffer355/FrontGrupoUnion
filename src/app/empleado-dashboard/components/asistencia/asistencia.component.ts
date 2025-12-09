@@ -1,9 +1,8 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AsistenciaService } from '../../../services/asistencia.service';
 import Swal from 'sweetalert2';
 
-// Mantenemos la declaración para no romper el código facial existente
 declare var faceapi: any;
 
 @Component({
@@ -81,7 +80,6 @@ declare var faceapi: any;
     .header-section h2 { color: #003057; font-size: 2rem; margin-bottom: 5px; }
     .date-display { color: #666; font-size: 1.1rem; }
 
-    /* TARJETA DE ESTADO */
     .status-card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; overflow: hidden; border-left: 5px solid #003057; }
     .status-header { background: #f8f9fa; padding: 15px 20px; font-weight: bold; color: #333; border-bottom: 1px solid #eee; }
     .status-body { display: flex; justify-content: space-around; padding: 20px; }
@@ -89,7 +87,6 @@ declare var faceapi: any;
     .status-item .label { font-size: 0.85rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
     .status-item .value { font-size: 1.2rem; font-weight: 600; color: #333; }
 
-    /* BOTONES */
     .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .btn-action { border: none; padding: 25px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 20px; transition: all 0.3s; color: white; text-align: left; position: relative; overflow: hidden; }
     .btn-action:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); }
@@ -105,14 +102,12 @@ declare var faceapi: any;
 
     .ip-note { text-align: center; margin-top: 20px; color: #aaa; font-size: 0.8rem; }
 
-    /* BADGES */
     .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; color: white; font-weight: 600; }
     .bg-green { background-color: #10b981; }
     .bg-orange { background-color: #f59e0b; }
     .bg-red { background-color: #ef4444; }
     .bg-gray { background-color: #6c757d; }
 
-    /* RESPALDO VISUAL BIOMETRÍA */
     .video-container { width: 100%; height: 300px; background: #000; border-radius: 10px; }
     
     @media (max-width: 600px) { .action-buttons { grid-template-columns: 1fr; } }
@@ -121,17 +116,18 @@ declare var faceapi: any;
 export class AsistenciaComponent implements OnInit, AfterViewInit {
   @ViewChild('videoElement') videoRef!: ElementRef;
   
-  // --- CONTROL MAESTRO ---
-  biometriaActiva = false; // FALSE = Botones, TRUE = Facial (Código preservado)
+  biometriaActiva = false;
   
   fechaActual = new Date();
   asistenciaHoy: any = null;
 
-  // Variables FaceAPI (Preservadas)
   isScanning = false;
   modelLoaded = false;
 
-  constructor(private asistenciaService: AsistenciaService) {}
+  constructor(
+    private asistenciaService: AsistenciaService,
+    private cdr: ChangeDetectorRef // IMPORTANTE: Inyectar esto para forzar actualización visual
+  ) {}
 
   ngOnInit() {
     this.cargarDatos();
@@ -143,14 +139,19 @@ export class AsistenciaComponent implements OnInit, AfterViewInit {
   }
 
   cargarDatos() {
-    this.asistenciaService.obtenerHoy().subscribe(data => this.asistenciaHoy = data);
+    this.asistenciaService.obtenerHoy().subscribe({
+        next: (data) => {
+            this.asistenciaHoy = data;
+            this.cdr.detectChanges(); // Asegurar renderizado
+        },
+        error: (err) => console.error(err)
+    });
   }
 
-  // Lógica Manual con SweetAlert
   confirmarAccion(tipo: 'ENTRADA' | 'SALIDA') {
     Swal.fire({
       title: `¿Desea marcar ${tipo.toLowerCase()}?`,
-      text: "Se registrará la hora exacta y su ubicación IP.",
+      text: "Se registrará la hora exacta.",
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: tipo === 'ENTRADA' ? '#10b981' : '#ef4444',
@@ -168,10 +169,9 @@ export class AsistenciaComponent implements OnInit, AfterViewInit {
     this.asistenciaService.marcar(tipo, forzar).subscribe({
       next: (res: any) => {
         if (res.status === 'CONFIRMATION_REQUIRED') {
-          // Modal Salida Anticipada
           Swal.fire({
             title: 'Salida Anticipada',
-            text: res.message, // Mensaje del backend: "¿Está seguro...?"
+            text: res.message,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -182,7 +182,17 @@ export class AsistenciaComponent implements OnInit, AfterViewInit {
           });
         } else {
           Swal.fire('Éxito', res.message, 'success');
-          this.cargarDatos();
+          
+          // --- CORRECCIÓN CLAVE AQUÍ ---
+          // Actualizamos la vista DIRECTAMENTE con lo que devuelve el backend
+          // No esperamos a cargarDatos()
+          if (res.data) {
+              this.asistenciaHoy = res.data;
+              this.cdr.detectChanges(); // Forzamos a Angular a pintar el cambio YA
+          } else {
+              // Fallback por si acaso
+              this.cargarDatos();
+          }
         }
       },
       error: (e) => Swal.fire('Error', e.error?.message || 'Error de conexión', 'error')
@@ -196,7 +206,6 @@ export class AsistenciaComponent implements OnInit, AfterViewInit {
     return 'bg-red';
   }
 
-  // --- CÓDIGO FACEAPI (PRESERVADO) ---
   async loadModels() { /* Código original */ }
   startVideo() { /* Código original */ }
 }
