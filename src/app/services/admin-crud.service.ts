@@ -62,4 +62,19 @@ export class AdminCrudService {
   deleteEmpleado(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/empleados/${id}`, { withCredentials: true });
   }
+
+  // --- NUEVOS MÉTODOS DE CONTRATOS ---
+  getContratos(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/contratos`, { withCredentials: true });
+  }
+
+  crearContrato(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/contratos`, data, { withCredentials: true });
+  }
+  
+  // --- NUEVOS MÉTODOS DE PLANILLA ---
+  generarPlanilla(mes: number, anio: number, usuario: string): Observable<any> {
+    // El año lo obtendrá el backend si no lo enviamos, pero es mejor ser explícitos
+    return this.http.post(`${this.apiUrl}/planillas/generar`, { mes, anio, usuario }, { withCredentials: true });
+  }
 }
