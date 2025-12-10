@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // IMPORTAR
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GestionCorporativaService } from '../../../services/gestion-corporativa.service';
@@ -42,6 +42,17 @@ import Swal from 'sweetalert2';
                 </div>
             </div>
 
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Fecha de Inicio</label>
+                    <input type="date" [(ngModel)]="nueva.fechaInicio" (change)="calcularFechaFin()" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Plazo Estimado de Atención (3 días)</label>
+                    <input type="text" [value]="fechaFinCalculada" class="form-control" readonly style="background-color: #f3f3f3; color: #555;">
+                </div>
+            </div>
+
             <div class="form-group">
                 <label>Detalle / Descripción</label>
                 <textarea [(ngModel)]="nueva.detalle" class="form-control" rows="4" placeholder="Describe el motivo de tu solicitud..."></textarea>
@@ -72,7 +83,7 @@ import Swal from 'sweetalert2';
             <table class="modern-table">
                 <thead>
                     <tr>
-                        <th>Fecha</th>
+                        <th>Fecha Creación</th>
                         <th>Tipo</th>
                         <th>Asunto</th>
                         <th>Adjunto</th>
@@ -136,7 +147,7 @@ import Swal from 'sweetalert2';
     .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
     .status-pending { background: #fff7ed; color: #c2410c; }
     .status-approved { background: #ecfdf5; color: #047857; }
-    .status-rejected { background: #fef2f2; color: #b91c1c; }
+    .status-rejected { background: #f8d7da; color: #b91c1c; }
     .btn-icon-view { background: #e0e7ff; color: #4338ca; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; }
     .fade-in { animation: fadeIn 0.4s ease-out; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
@@ -147,17 +158,19 @@ export class EmpleadoSolicitudesComponent implements OnInit {
   showForm = false;
   uploading = false;
   
-  nueva = { idTipo: 1, asunto: '', detalle: '' };
+  // Objeto nueva solicitud actualizado
+  nueva = { idTipo: 1, asunto: '', detalle: '', fechaInicio: '' };
+  
+  fechaFinCalculada: string = ''; // Solo para mostrar
   file: File | null = null;
 
   constructor(
       private service: GestionCorporativaService,
-      private cdr: ChangeDetectorRef // INYECTAR
+      private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() { 
       this.cargar(); 
-      // SUSCRIPCIÓN AUTOMÁTICA
       this.service.refreshNeeded$.subscribe(() => {
           this.cargar();
       });
@@ -167,7 +180,7 @@ export class EmpleadoSolicitudesComponent implements OnInit {
       this.service.getMisSolicitudes().subscribe({
           next: (d) => {
               this.solicitudes = d;
-              this.cdr.detectChanges(); // FORZAR PINTADO
+              this.cdr.detectChanges();
           }
       }); 
   }
@@ -175,8 +188,21 @@ export class EmpleadoSolicitudesComponent implements OnInit {
   toggleForm() { 
       this.showForm = !this.showForm;
       if(!this.showForm) {
-          this.nueva = { idTipo: 1, asunto: '', detalle: '' };
+          this.nueva = { idTipo: 1, asunto: '', detalle: '', fechaInicio: '' };
+          this.fechaFinCalculada = '';
           this.file = null;
+      }
+  }
+
+  // --- CALCULAR FECHA ESTIMADA (3 DÍAS) ---
+  calcularFechaFin() {
+      if (this.nueva.fechaInicio) {
+          const fecha = new Date(this.nueva.fechaInicio);
+          fecha.setDate(fecha.getDate() + 3); // Sumamos 3 días (calendario)
+          // Formatear para mostrar bonito (dd/mm/yyyy)
+          this.fechaFinCalculada = fecha.toLocaleDateString();
+      } else {
+          this.fechaFinCalculada = '';
       }
   }
 
@@ -189,8 +215,8 @@ export class EmpleadoSolicitudesComponent implements OnInit {
   removeFile() { this.file = null; }
 
   enviar() {
-    if(!this.nueva.asunto || !this.nueva.detalle) {
-        Swal.fire('Atención', 'Asunto y detalle son obligatorios', 'warning');
+    if(!this.nueva.asunto || !this.nueva.detalle || !this.nueva.fechaInicio) {
+        Swal.fire('Atención', 'Asunto, detalle y fecha de inicio son obligatorios', 'warning');
         return;
     }
 
@@ -200,6 +226,9 @@ export class EmpleadoSolicitudesComponent implements OnInit {
     fd.append('asunto', this.nueva.asunto);
     fd.append('detalle', this.nueva.detalle);
     fd.append('idTipo', this.nueva.idTipo.toString());
+    // ENVIAR LA FECHA AL BACK
+    fd.append('fechaInicio', this.nueva.fechaInicio); 
+
     if (this.file) {
         fd.append('file', this.file);
     }

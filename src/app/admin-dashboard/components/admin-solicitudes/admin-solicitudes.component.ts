@@ -12,14 +12,18 @@ import Swal from 'sweetalert2';
         <div class="crud-header"><h2><i class="fas fa-inbox"></i> Bandeja de Solicitudes</h2></div>
         <div class="table-responsive">
             <table class="modern-table">
-                <thead><tr><th>Empleado</th><th>Fecha</th><th>Asunto</th><th>Adjunto</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <thead><tr><th>Empleado</th><th>Fecha / Plazo</th><th>Asunto</th><th>Adjunto</th><th>Estado</th><th>Acciones</th></tr></thead>
                 <tbody>
                     <tr *ngFor="let s of solicitudes">
                         <td>
                             <strong>{{ s.empleado?.persona?.nombres }}</strong><br>
                             <small>{{ s.empleado?.departamento?.nombre }}</small>
                         </td>
-                        <td>{{ s.creadoEn | date:'shortDate' }}</td>
+                        <td>
+                            <div *ngIf="s.fechaIni">Inicia: {{ s.fechaIni | date:'dd/MM/yyyy' }}</div>
+                            <small class="text-muted" *ngIf="s.fechaFin">Límite: {{ s.fechaFin | date:'dd/MM/yyyy' }}</small>
+                            <div *ngIf="!s.fechaIni" class="text-muted">Sin fecha</div>
+                        </td>
                         <td>
                             <div>{{ s.asunto }}</div>
                             <small class="text-muted">{{ s.tipoSolicitud?.nombre }}</small>
@@ -33,8 +37,9 @@ import Swal from 'sweetalert2';
                         <td><span class="badge" [ngClass]="getBadge(s.estadoSolicitud?.nombre)">{{ s.estadoSolicitud?.nombre || 'PENDIENTE' }}</span></td>
                         <td>
                             <div style="display:flex; gap:5px;">
-                                <button class="btn-success" title="Aprobar" (click)="gestionar(s, 2)"><i class="fas fa-check"></i></button>
-                                <button class="btn-danger" title="Rechazar" (click)="gestionar(s, 3)"><i class="fas fa-times"></i></button>
+                                <button class="btn-success" title="Aprobar" (click)="gestionar(s, 2)" *ngIf="s.estadoSolicitud?.idEstado === 1"><i class="fas fa-check"></i></button>
+                                <button class="btn-danger" title="Rechazar" (click)="gestionar(s, 3)" *ngIf="s.estadoSolicitud?.idEstado === 1"><i class="fas fa-times"></i></button>
+                                <span *ngIf="s.estadoSolicitud?.idEstado !== 1" class="text-muted" style="font-size:0.8rem;">Cerrado</span>
                             </div>
                         </td>
                     </tr>
@@ -58,7 +63,7 @@ export class AdminSolicitudesComponent implements OnInit {
   
   constructor(
       private service: GestionCorporativaService,
-      private cdr: ChangeDetectorRef // Inyección
+      private cdr: ChangeDetectorRef
   ) {}
   
   ngOnInit() { 
@@ -72,7 +77,7 @@ export class AdminSolicitudesComponent implements OnInit {
       this.service.getAllSolicitudesAdmin().subscribe({
           next: (d) => {
               this.solicitudes = d;
-              this.cdr.detectChanges(); // CORRECCIÓN: Renderiza la tabla inmediatamente
+              this.cdr.detectChanges();
           }
       }); 
   }
@@ -86,32 +91,28 @@ export class AdminSolicitudesComponent implements OnInit {
       return 'bg-pending';
   }
 
-  // CORRECCIÓN: Implementación de la lógica de actualización
   gestionar(solicitud: any, idEstado: number) {
-      const nuevoEstadoNombre = idEstado === 2 ? 'APROBADO' : 'RECHAZADO';
-      
+      const accion = idEstado === 2 ? 'Aprobar' : 'Rechazar';
+      const color = idEstado === 2 ? '#10b981' : '#ef4444';
+
       Swal.fire({
-          title: `¿${nuevoEstadoNombre === 'APROBADO' ? 'Aprobar' : 'Rechazar'} Solicitud?`,
-          text: `Se cambiará el estado a ${nuevoEstadoNombre}`,
-          icon: idEstado === 2 ? 'question' : 'warning',
+          title: `¿${accion} Solicitud?`,
+          text: `Esta acción notificará al empleado.`,
+          icon: 'question',
           showCancelButton: true,
-          confirmButtonColor: idEstado === 2 ? '#10b981' : '#ef4444',
-          confirmButtonText: 'Sí, confirmar'
+          confirmButtonColor: color,
+          confirmButtonText: `Sí, ${accion}`
       }).then((result) => {
           if (result.isConfirmed) {
-              // 1. Actualización Optimista (Visualmente instantánea)
-              // Simulamos que el objeto ya cambió para que el usuario vea la reacción inmediata
-              if (!solicitud.estadoSolicitud) solicitud.estadoSolicitud = {};
-              solicitud.estadoSolicitud.nombre = nuevoEstadoNombre;
+              Swal.fire({ title: 'Procesando...', didOpen: () => Swal.showLoading() });
               
-              // 2. Feedback visual
-              Swal.fire('Actualizado', `La solicitud ha sido ${nuevoEstadoNombre.toLowerCase()}.`, 'success');
-
-              // 3. FORZAR LA VISTA PARA QUE REFLEJE EL CAMBIO DE COLOR DEL BADGE
-              this.cdr.detectChanges();
-
-              // NOTA: Aquí iría la llamada al servicio real si existiera el endpoint:
-              // this.service.updateEstadoSolicitud(solicitud.idSolicitud, idEstado).subscribe(...)
+              this.service.updateEstadoSolicitud(solicitud.idSolicitud, idEstado).subscribe({
+                  next: () => {
+                      Swal.fire('Procesado', `Solicitud ${accion.toLowerCase()} con éxito.`, 'success');
+                      this.cargar(); // Recargar tabla
+                  },
+                  error: () => Swal.fire('Error', 'No se pudo conectar con el servidor', 'error')
+              });
           }
       });
   }
