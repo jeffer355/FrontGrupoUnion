@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // <--- IMPORTANTE: ChangeDetectorRef
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GestionCorporativaService } from '../../../services/gestion-corporativa.service';
@@ -128,13 +128,16 @@ export class AdminBoletasComponent implements OnInit {
   constructor(
       private service: GestionCorporativaService, 
       private adminService: AdminCrudService,
-      private cdr: ChangeDetectorRef // <--- INYECTADO AQUÍ
+      private cdr: ChangeDetectorRef // Inyección de ChangeDetectorRef
   ) {}
 
   ngOnInit() {
-    this.adminService.getEmpleados().subscribe(d => this.empleados = d);
+    // CORRECCIÓN REACTIVIDAD: Forzamos la actualización al recibir empleados
+    this.adminService.getEmpleados().subscribe(d => {
+        this.empleados = d;
+        this.cdr.detectChanges(); // IMPORTANTE: Renderiza el select inmediatamente
+    });
     
-    // Carga inicial
     this.cargarHistorial();
   }
 
@@ -142,8 +145,7 @@ export class AdminBoletasComponent implements OnInit {
       this.service.getHistorialBoletasAdmin().subscribe({
           next: (d) => {
               this.historial = d;
-              // FORZAR ACTUALIZACIÓN VISUAL
-              this.cdr.detectChanges(); 
+              this.cdr.detectChanges(); // IMPORTANTE: Renderiza la tabla inmediatamente
           },
           error: (e) => console.error(e)
       });
@@ -175,12 +177,12 @@ export class AdminBoletasComponent implements OnInit {
             this.uploading = false;
             this.file = null; 
             
-            // LLAMADA EXPLÍCITA PARA ACTUALIZAR TABLA
             this.cargarHistorial();
         },
         error: () => {
             Swal.fire('Error', 'Fallo al subir', 'error');
             this.uploading = false;
+            this.cdr.detectChanges(); // Asegura que el botón se desbloquee visualmente
         }
     });
   }

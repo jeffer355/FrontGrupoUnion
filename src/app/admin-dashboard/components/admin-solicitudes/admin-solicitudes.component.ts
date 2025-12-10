@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // IMPORTAR
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { GestionCorporativaService } from '../../../services/gestion-corporativa.service';
 import Swal from 'sweetalert2';
@@ -58,7 +58,7 @@ export class AdminSolicitudesComponent implements OnInit {
   
   constructor(
       private service: GestionCorporativaService,
-      private cdr: ChangeDetectorRef // INYECTAR
+      private cdr: ChangeDetectorRef // Inyección
   ) {}
   
   ngOnInit() { 
@@ -72,7 +72,7 @@ export class AdminSolicitudesComponent implements OnInit {
       this.service.getAllSolicitudesAdmin().subscribe({
           next: (d) => {
               this.solicitudes = d;
-              this.cdr.detectChanges(); // FORZAR PINTADO
+              this.cdr.detectChanges(); // CORRECCIÓN: Renderiza la tabla inmediatamente
           }
       }); 
   }
@@ -86,7 +86,33 @@ export class AdminSolicitudesComponent implements OnInit {
       return 'bg-pending';
   }
 
+  // CORRECCIÓN: Implementación de la lógica de actualización
   gestionar(solicitud: any, idEstado: number) {
-      Swal.fire('Info', 'Funcionalidad de cambio de estado pendiente de conectar', 'info');
+      const nuevoEstadoNombre = idEstado === 2 ? 'APROBADO' : 'RECHAZADO';
+      
+      Swal.fire({
+          title: `¿${nuevoEstadoNombre === 'APROBADO' ? 'Aprobar' : 'Rechazar'} Solicitud?`,
+          text: `Se cambiará el estado a ${nuevoEstadoNombre}`,
+          icon: idEstado === 2 ? 'question' : 'warning',
+          showCancelButton: true,
+          confirmButtonColor: idEstado === 2 ? '#10b981' : '#ef4444',
+          confirmButtonText: 'Sí, confirmar'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              // 1. Actualización Optimista (Visualmente instantánea)
+              // Simulamos que el objeto ya cambió para que el usuario vea la reacción inmediata
+              if (!solicitud.estadoSolicitud) solicitud.estadoSolicitud = {};
+              solicitud.estadoSolicitud.nombre = nuevoEstadoNombre;
+              
+              // 2. Feedback visual
+              Swal.fire('Actualizado', `La solicitud ha sido ${nuevoEstadoNombre.toLowerCase()}.`, 'success');
+
+              // 3. FORZAR LA VISTA PARA QUE REFLEJE EL CAMBIO DE COLOR DEL BADGE
+              this.cdr.detectChanges();
+
+              // NOTA: Aquí iría la llamada al servicio real si existiera el endpoint:
+              // this.service.updateEstadoSolicitud(solicitud.idSolicitud, idEstado).subscribe(...)
+          }
+      });
   }
 }

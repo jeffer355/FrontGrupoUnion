@@ -132,159 +132,35 @@ import Swal from 'sweetalert2';
     </div>
   `,
   styles: [`
-    /* =========================================
-       1. ESTILOS DE LA TARJETA DE SUBIDA (BOLETAS STYLE)
-       ========================================= */
-    .upload-card { 
-        background: #f8f9fe; 
-        border: 1px solid #eef2f7; 
-        border-radius: 12px; 
-        padding: 25px; 
-        margin-bottom: 40px; 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
-    }
-    
-    .card-title { 
-        font-size: 1.1rem; 
-        color: #5e72e4; 
-        margin-top: 0; 
-        margin-bottom: 20px; 
-        border-bottom: 1px solid #e9ecef; 
-        padding-bottom: 10px; 
-        display: flex; 
-        align-items: center; 
-        gap: 10px; 
-    }
-    
-    /* Grid Layout similar al de Boletas */
-    .form-grid { 
-        display: grid; 
-        grid-template-columns: 2fr 1.5fr 1fr 2fr; /* Distribución de columnas */
-        gap: 20px; 
-        align-items: flex-end; 
-    }
-    
+    .upload-card { background: #f8f9fe; border: 1px solid #eef2f7; border-radius: 12px; padding: 25px; margin-bottom: 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+    .card-title { font-size: 1.1rem; color: #5e72e4; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #e9ecef; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+    .form-grid { display: grid; grid-template-columns: 2fr 1.5fr 1fr 2fr; gap: 20px; align-items: flex-end; }
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group label { font-size: 0.85rem; font-weight: 600; color: #525f7f; margin-bottom: 0; }
-    
-    .form-control { 
-        width: 100%; 
-        padding: 10px; 
-        border: 1px solid #dee2e6; 
-        border-radius: 0.35rem; 
-        background-color: #fff; 
-        height: 45px; /* Altura uniforme */
-        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; 
-    }
-    
-    .form-control:focus { 
-        color: #8898aa; 
-        background-color: #fff; 
-        border-color: #5e72e4; 
-        outline: 0; 
-        box-shadow: 0 3px 9px rgba(50,50,9,0.05), 3px 4px 8px rgba(94,114,228,.1); 
-    }
-
-    /* Botón Publicar */
-    .actions-right { 
-        display: flex; 
-        justify-content: flex-end; 
-        margin-top: 25px; 
-        padding-top: 15px;
-        border-top: 1px solid #e9ecef;
-    }
-    
-    .btn-primary { 
-        background-color: #003057; 
-        color: white; 
-        border: none; 
-        padding: 12px 25px; 
-        border-radius: 5px; 
-        font-weight: 600; 
-        cursor: pointer; 
-        display: flex; 
-        align-items: center; 
-        gap: 8px; 
-        transition: all 0.2s; 
-    }
-    .btn-primary:hover { 
-        background-color: #002240; 
-        transform: translateY(-1px); 
-        box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08); 
-    }
-
-    /* =========================================
-       2. ESTILOS DE LA TABLA Y ACCIONES CENTRADAS
-       ========================================= */
-    .history-section h3 { 
-        font-size: 1.3rem; 
-        color: #32325d; 
-        margin-bottom: 20px; 
-        border-left: 4px solid #003057; 
-        padding-left: 10px; 
-    }
-
-    /* CENTRADO DE ACCIONES (LO QUE PEDISTE) */
-    .text-center-header {
-        text-align: center !important;
-    }
-    
-    .actions-cell {
-        text-align: center;
-    }
-
-    .actions-wrapper {
-        display: flex;
-        justify-content: center; /* Centrado horizontal */
-        align-items: center;
-        gap: 8px; /* Espacio entre bolitas */
-    }
-
-    /* Botones redondos */
-    .btn-icon-view, .btn-icon-approve, .btn-icon-reject, .btn-icon-update { 
-        border: none; 
-        width: 32px; 
-        height: 32px; 
-        border-radius: 50%; 
-        cursor: pointer; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        transition: all 0.2s; 
-        color: white; 
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    
-    .btn-icon-view { background: #11cdef; } 
-    .btn-icon-view:hover { background: #0da5c0; transform: scale(1.1); }
-    
-    .btn-icon-approve { background: #2dce89; }
-    .btn-icon-approve:hover { background: #24a46d; transform: scale(1.1); }
-    
-    .btn-icon-reject { background: #f5365c; }
-    .btn-icon-reject:hover { background: #c32b49; transform: scale(1.1); }
-    
-    .btn-icon-update { background: #5e72e4; }
-    .btn-icon-update:hover { background: #324cdd; transform: scale(1.1); }
-
-    /* Otros estilos de tabla */
+    .form-control { width: 100%; padding: 10px; border: 1px solid #dee2e6; border-radius: 0.35rem; background-color: #fff; height: 45px; transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
+    .form-control:focus { color: #8898aa; background-color: #fff; border-color: #5e72e4; outline: 0; box-shadow: 0 3px 9px rgba(50,50,9,0.05), 3px 4px 8px rgba(94,114,228,.1); }
+    .actions-right { display: flex; justify-content: flex-end; margin-top: 25px; padding-top: 15px; border-top: 1px solid #e9ecef; }
+    .btn-primary { background-color: #003057; color: white; border: none; padding: 12px 25px; border-radius: 5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-primary:hover { background-color: #002240; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08); }
+    .history-section h3 { font-size: 1.3rem; color: #32325d; margin-bottom: 20px; border-left: 4px solid #003057; padding-left: 10px; }
+    .text-center-header { text-align: center !important; }
+    .actions-cell { text-align: center; }
+    .actions-wrapper { display: flex; justify-content: center; align-items: center; gap: 8px; }
+    .btn-icon-view, .btn-icon-approve, .btn-icon-reject, .btn-icon-update { border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .btn-icon-view { background: #11cdef; } .btn-icon-view:hover { background: #0da5c0; transform: scale(1.1); }
+    .btn-icon-approve { background: #2dce89; } .btn-icon-approve:hover { background: #24a46d; transform: scale(1.1); }
+    .btn-icon-reject { background: #f5365c; } .btn-icon-reject:hover { background: #c32b49; transform: scale(1.1); }
+    .btn-icon-update { background: #5e72e4; } .btn-icon-update:hover { background: #324cdd; transform: scale(1.1); }
     .text-center { text-align: center; padding: 30px; color: #888; }
     .text-muted { color: #8898aa; font-size: 0.8rem; }
     .badge-light { background: #e9ecef; color: #495057; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
     .bg-admin { background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
-    
     .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
     .status-pending { background: #fff3cd; color: #856404; }
     .status-approved { background: #d1e7dd; color: #0f5132; }
     .status-rejected { background: #f8d7da; color: #842029; }
-
-    /* Responsive */
-    @media (max-width: 992px) { 
-        .form-grid { grid-template-columns: 1fr 1fr; } 
-    }
-    @media (max-width: 768px) { 
-        .form-grid { grid-template-columns: 1fr; } 
-    }
+    @media (max-width: 992px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
   `]
 })
 export class AdminDocumentosComponent implements OnInit {
@@ -293,23 +169,25 @@ export class AdminDocumentosComponent implements OnInit {
   historial: any[] = [];
   empleados: any[] = [];
   
-  // Datos del formulario integrado
   uploadData: any = { idEmpleado: null, nombre: '', tipo: 'Contrato' };
   selectedFile: File | null = null;
   uploading = false;
   
-  // Update Var
   docToUpdateId: number | null = null;
 
   constructor(
       private service: GestionCorporativaService, 
       private adminService: AdminCrudService,
-      private cdr: ChangeDetectorRef
+      private cdr: ChangeDetectorRef // Inyección
   ) {}
 
   ngOnInit() {
     this.cargar();
-    this.adminService.getEmpleados().subscribe(d => this.empleados = d);
+    // CORRECCIÓN REACTIVIDAD: Detectar cambios al recibir empleados
+    this.adminService.getEmpleados().subscribe(d => {
+        this.empleados = d;
+        this.cdr.detectChanges(); // Renderizar selector
+    });
     this.service.refreshNeeded$.subscribe(() => this.cargar());
   }
 
@@ -317,7 +195,7 @@ export class AdminDocumentosComponent implements OnInit {
     this.service.getHistorialDocumentosAdmin().subscribe({
         next: (d) => {
             this.historial = d;
-            this.cdr.detectChanges();
+            this.cdr.detectChanges(); // Renderizar tabla
         }
     });
   }
@@ -330,7 +208,6 @@ export class AdminDocumentosComponent implements OnInit {
       return 'status-rejected';
   }
 
-  // --- SUBIDA DE NUEVO DOCUMENTO ---
   onFileSelect(e: any) { this.selectedFile = e.target.files[0]; }
 
   guardarDocumentoAdmin() {
@@ -355,23 +232,22 @@ export class AdminDocumentosComponent implements OnInit {
                   timer: 1500,
                   showConfirmButton: false
               });
-              // Limpiar formulario
               this.uploadData = { idEmpleado: null, nombre: '', tipo: 'Contrato' };
               this.selectedFile = null;
-              // Resetear input visualmente
               const fileInput = document.getElementById('fileUpload') as HTMLInputElement;
               if(fileInput) fileInput.value = '';
               
               this.uploading = false;
+              this.cdr.detectChanges(); // Actualizar UI (quitar loading)
           },
           error: (e) => {
               Swal.fire('Error', 'Fallo al subir el documento.', 'error');
               this.uploading = false;
+              this.cdr.detectChanges();
           }
       });
   }
 
-  // --- ACTUALIZAR DOCUMENTO ---
   actualizarDocumento(doc: any) {
       this.docToUpdateId = doc.idDocumento;
       this.fileUpdateInput.nativeElement.click();
@@ -392,7 +268,6 @@ export class AdminDocumentosComponent implements OnInit {
       }
   }
 
-  // APROBACIÓN Y RECHAZO
   aprobar(doc: any) {
       Swal.fire({
           title: '¿Aprobar documento?',
