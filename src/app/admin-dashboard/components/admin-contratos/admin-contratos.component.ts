@@ -16,9 +16,20 @@ import Swal from 'sweetalert2';
                 <h2><i class="fas fa-file-contract" style="color: #003057;"></i> Gestión de Contratos</h2>
                 <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9rem;">Administra los contratos laborales y regímenes pensionales.</p>
             </div>
-            <button class="btn-add" (click)="toggleModal()">
-                <i class="fas fa-plus"></i> Nuevo Contrato
-            </button>
+            
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <div class="search-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" 
+                           placeholder="Buscar por nombre o DNI..." 
+                           class="search-input-table" 
+                           [(ngModel)]="searchText" 
+                           (keyup)="filtrar()">
+                </div>
+                <button class="btn-add" (click)="toggleModal()">
+                    <i class="fas fa-plus"></i> Nuevo Contrato
+                </button>
+            </div>
         </div>
 
         <div class="table-responsive">
@@ -34,7 +45,7 @@ import Swal from 'sweetalert2';
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let c of contratos">
+                    <tr *ngFor="let c of contratosFiltrados">
                         <td>
                             <div class="user-cell">
                                 <div class="user-avatar-small" [style.background-color]="getColor(c.empleado?.persona?.nombres)">
@@ -72,9 +83,10 @@ import Swal from 'sweetalert2';
                             </button>
                         </td>
                     </tr>
-                    <tr *ngIf="contratos.length === 0">
+                    <tr *ngIf="contratosFiltrados.length === 0">
                         <td colspan="6" class="empty-state">
-                            <i class="fas fa-folder-open"></i> No hay contratos registrados.
+                            <i class="fas fa-folder-open"></i> 
+                            {{ searchText ? 'No se encontraron resultados.' : 'No hay contratos registrados.' }}
                         </td>
                     </tr>
                 </tbody>
@@ -168,8 +180,14 @@ import Swal from 'sweetalert2';
   styles: [`
     /* HEADER */
     .crud-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #f4f4f4; padding-bottom: 15px; }
-    .btn-add { background-color: #003057; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+    .btn-add { background-color: #003057; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s; white-space: nowrap; }
     .btn-add:hover { background-color: #002240; }
+
+    /* ESTILOS DEL BUSCADOR */
+    .search-wrapper { position: relative; }
+    .search-input-table { padding: 8px 15px 8px 35px; border: 1px solid #ddd; border-radius: 20px; width: 250px; outline: none; transition: border-color 0.3s; font-size: 0.9rem; }
+    .search-input-table:focus { border-color: #003057; box-shadow: 0 0 5px rgba(0,48,87,0.1); }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; font-size: 0.9rem; }
 
     /* TABLA MODERNA */
     .modern-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
@@ -229,6 +247,9 @@ import Swal from 'sweetalert2';
 })
 export class AdminContratosComponent implements OnInit {
   contratos: any[] = [];
+  contratosFiltrados: any[] = []; // Lista para la tabla
+  searchText: string = ''; // Variable del buscador
+
   empleados: any[] = [];
   sugerencias: any[] = [];
   
@@ -246,10 +267,28 @@ export class AdminContratosComponent implements OnInit {
   }
 
   cargar() {
-    this.service.getContratos().subscribe(d => { this.contratos = d; this.cdr.detectChanges(); });
+    this.service.getContratos().subscribe(d => { 
+        this.contratos = d;
+        this.filtrar(); // Inicializar filtrado
+        this.cdr.detectChanges(); 
+    });
     this.service.getEmpleados().subscribe(d => this.empleados = d);
   }
 
+  // --- LÓGICA DEL BUSCADOR DE CONTRATOS ---
+  filtrar() {
+      if (!this.searchText) {
+          this.contratosFiltrados = this.contratos;
+      } else {
+          const txt = this.searchText.toLowerCase();
+          this.contratosFiltrados = this.contratos.filter(c => 
+              c.empleado?.persona?.nombres.toLowerCase().includes(txt) || 
+              c.empleado?.persona?.nroDocumento.includes(txt)
+          );
+      }
+  }
+
+  // --- LÓGICA DEL AUTOCOMPLETE (MODAL) ---
   filtrarEmpleados() {
     if (!this.searchEmp) { this.sugerencias = []; return; }
     const txt = this.searchEmp.toLowerCase();

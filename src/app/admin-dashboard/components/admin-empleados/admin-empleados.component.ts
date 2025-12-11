@@ -151,7 +151,7 @@ export class AdminEmpleadosComponent implements OnInit {
   
   listaAreas: any[] = []; 
   listaTiposDoc: any[] = [];
-  listaCargos: any[] = []; // NUEVA LISTA
+  listaCargos: any[] = []; 
 
   showModal = false; showDetailModal = false; isEditMode = false;
   tempItem: any = this.initEmpty(); selectedItem: any = null;
@@ -166,8 +166,6 @@ export class AdminEmpleadosComponent implements OnInit {
     });
     this.service.getAreas().subscribe(d => this.listaAreas = d);
     this.service.getTiposDocumento().subscribe(d => this.listaTiposDoc = d);
-    
-    // --- CARGAR CARGOS AL INICIAR ---
     this.service.getCargos().subscribe(d => this.listaCargos = d);
   }
 
@@ -250,7 +248,6 @@ export class AdminEmpleadosComponent implements OnInit {
       this.service.updateEmpleado({...e}).subscribe({error:()=>e.estado=n==='ACTIVO'?'CESADO':'ACTIVO'});
   }
   
-  // INICIALIZADOR DE OBJETO VACÍO
   initEmpty(){ 
       return { 
           persona:{
@@ -258,7 +255,7 @@ export class AdminEmpleadosComponent implements OnInit {
               tipoDocumento:{idTipoDoc:1}
           }, 
           departamento:{idDepartamento:null}, 
-          cargo:{idCargo:null}, // Inicializar Cargo
+          cargo:{idCargo:null}, 
           fechaIngreso:new Date().toISOString().split('T')[0], 
           estado:'ACTIVO'
       } 
@@ -275,11 +272,44 @@ export class AdminEmpleadosComponent implements OnInit {
   }
   
   guardarEmpleado(){ 
-      // Validación incluyendo Cargo
+      // 1. Validaciones Básicas (Campos obligatorios)
       if(!this.tempItem.persona.nombres || !this.tempItem.departamento.idDepartamento || !this.tempItem.cargo.idCargo){
           Swal.fire('Atención','Complete todos los datos requeridos (incluyendo cargo)','warning');
           return;
       }
+
+      // 2. VALIDACIONES DE DOCUMENTO
+      const tipoDoc = Number(this.tempItem.persona.tipoDocumento.idTipoDoc);
+      const nroDoc = this.tempItem.persona.nroDocumento;
+
+      if (!nroDoc) {
+          Swal.fire('Atención', 'El número de documento es obligatorio', 'warning');
+          return;
+      }
+
+      // Validar DNI (8 dígitos) - Asumiendo que ID 1 es DNI
+      if (tipoDoc === 1) {
+          if (!/^\d{8}$/.test(nroDoc)) {
+              Swal.fire('Error', 'El DNI debe tener exactamente 8 dígitos numéricos.', 'error');
+              return;
+          }
+      }
+      // Validar Pasaporte (9 dígitos) - Asumiendo que ID 2 es Pasaporte
+      else if (tipoDoc === 2) {
+          if (!/^\d{9}$/.test(nroDoc)) {
+              Swal.fire('Error', 'El Pasaporte debe tener exactamente 9 dígitos numéricos.', 'error');
+              return;
+          }
+      }
+      // Validar Carné Extranjería (20 dígitos) - Asumiendo que ID 3 es CE
+      else if (tipoDoc === 3) {
+          if (!/^\d{20}$/.test(nroDoc)) {
+              Swal.fire('Error', 'El Carné de Extranjería debe tener exactamente 20 dígitos numéricos.', 'error');
+              return;
+          }
+      }
+
+      // 3. Procede a Guardar si todo es correcto
       const req=this.isEditMode?this.service.updateEmpleado(this.tempItem):this.service.createEmpleado(this.tempItem);
       req.subscribe({
           next:()=>{this.ngOnInit();this.closeModal();Swal.fire('Éxito','Guardado','success');},

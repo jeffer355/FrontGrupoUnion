@@ -15,11 +15,11 @@ export class AsistenciaService {
     return this.http.get(`${this.apiUrl}/hoy`, { withCredentials: true });
   }
 
-  marcar(tipo: 'ENTRADA' | 'SALIDA', confirmado: boolean = false): Observable<any> {
-    return this.http.post(`${this.apiUrl}/marcar`, { tipo, confirmado }, { withCredentials: true });
+  // MÉTODO ACTUALIZADO: Recibe 'observacion'
+  marcar(tipo: 'ENTRADA' | 'SALIDA', confirmado: boolean = false, observacion: string = ''): Observable<any> {
+    return this.http.post(`${this.apiUrl}/marcar`, { tipo, confirmado, observacion }, { withCredentials: true });
   }
 
-  // NUEVO: Obtener historial propio del empleado
   getMisRegistros(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/mis-registros`, { withCredentials: true });
   }
