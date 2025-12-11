@@ -2,8 +2,8 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminCrudService } from '../../../services/admin-crud.service';
-import { DashboardService } from '../../../services/dashboard.service'; // Importamos DashboardService
-import { AuthService } from '../../../auth/services/auth.service'; // Importamos AuthService
+import { DashboardService } from '../../../services/dashboard.service'; 
+import { AuthService } from '../../../auth/services/auth.service'; 
 import Swal from 'sweetalert2';
 
 @Component({
@@ -63,7 +63,7 @@ import Swal from 'sweetalert2';
                 <h3>{{ isEditMode ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
                 
                 <div class="alert-info" style="background:#e0f2fe; color:#0369a1; padding:10px; margin-bottom:15px; border-radius:5px;">
-                    <i class="fas fa-info-circle"></i> El email debe existir previamente en Empleados.
+                    <i class="fas fa-info-circle"></i> Creará un acceso al sistema.
                 </div>
 
                 <div class="form-group">
@@ -123,18 +123,18 @@ export class AdminUsuariosComponent implements OnInit {
   selectedItem: any = null;
   
   selectedFile: File | null = null;
-  currentUser: string | null = null; // Variable para guardar quién soy yo
+  currentUser: string | null = null; 
 
   constructor(
       private service: AdminCrudService, 
-      private dashboardService: DashboardService, // Inyectamos dashboardService
-      private authService: AuthService, // Inyectamos authService para saber mi usuario
+      private dashboardService: DashboardService,
+      private authService: AuthService, 
       private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() { 
       this.cargarUsuarios();
-      this.currentUser = this.authService.getUserName(); // Obtengo mi usuario actual del localStorage
+      this.currentUser = this.authService.getUserName();
   }
 
   cargarUsuarios() {
@@ -171,21 +171,25 @@ export class AdminUsuariosComponent implements OnInit {
       }
       if (typeof this.tempItem.rol.idRol === 'string') this.tempItem.rol.idRol = parseInt(this.tempItem.rol.idRol);
 
+      // --- CORRECCIÓN ERROR 1: ASEGURAR ESTRUCTURA DE PERSONA ---
+      // Si estamos creando y la persona está vacía (solo tiene estructura básica)
+      // rellenamos con el username para que el backend no falle.
+      if (!this.isEditMode && (!this.tempItem.persona.nombres || this.tempItem.persona.nombres === '')) {
+          this.tempItem.persona.nombres = this.tempItem.username; // Usar email como nombre temporal
+          this.tempItem.persona.email = this.tempItem.username;
+      }
+
       const request = this.isEditMode ? this.service.updateUsuario(this.tempItem) : this.service.createUsuario(this.tempItem);
 
       request.subscribe({
           next: (userSaved: any) => {
-              // Lógica de subida de foto
               if (this.selectedFile && userSaved && userSaved.persona && userSaved.persona.idPersona) {
                   this.service.uploadFotoPersona(userSaved.persona.idPersona, this.selectedFile).subscribe({
                       next: (res: any) => {
-                          const newUrl = res.message; // El backend devuelve la URL en 'message'
-                          
-                          // *** CLAVE: Si estoy editando MI propio usuario, actualizo el sidebar ***
+                          const newUrl = res.message;
                           if (this.currentUser === userSaved.username) {
                               this.dashboardService.updatePhoto(newUrl);
                           }
-                          
                           this.finalizarGuardado('Usuario y foto guardados');
                       },
                       error: (err) => this.finalizarGuardado('Usuario guardado, pero error en foto')
@@ -211,7 +215,21 @@ export class AdminUsuariosComponent implements OnInit {
       });
   }
 
-  initEmpty() { return { username: '', hashPass: '', activo: true, rol: { idRol: 2 } }; }
+  // --- CORRECCIÓN IMPORTANTE: Inicializar estructura completa de Persona ---
+  initEmpty() { 
+      return { 
+          username: '', 
+          hashPass: '', 
+          activo: true, 
+          rol: { idRol: 2 },
+          persona: { // Estructura anidada para evitar NullPointer en backend
+              nombres: '',
+              tipoDocumento: { idTipoDoc: 1 },
+              nroDocumento: '',
+              email: ''
+          }
+      }; 
+  }
   
   openModal(m: 'crear' | 'editar', i?: any) {
       this.isEditMode = m === 'editar';

@@ -10,17 +10,27 @@ export class AdminCrudService {
 
   constructor(private http: HttpClient) { }
 
-  // --- SUBIDA DE FOTO ---
+  // ==========================================
+  //               UTILIDADES
+  // ==========================================
+  getTiposDocumento(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/tipos-documento`, { withCredentials: true });
+  }
+
+  // --- NUEVO: OBTENER CARGOS ---
+  getCargos(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/cargos`, { withCredentials: true });
+  }
+
   uploadFotoPersona(idPersona: number, file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(`${this.apiUrl}/personas/${idPersona}/foto`, formData, { withCredentials: true });
   }
 
-  getTiposDocumento(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/tipos-documento`, { withCredentials: true });
-  }
-  // USUARIOS
+  // ==========================================
+  //               USUARIOS
+  // ==========================================
   getUsuarios(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/usuarios`, { withCredentials: true });
   }
@@ -33,7 +43,10 @@ export class AdminCrudService {
   deleteUsuario(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/usuarios/${id}`, { withCredentials: true });
   }
-  // AREAS
+
+  // ==========================================
+  //                 ÁREAS
+  // ==========================================
   getAreas(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/areas`, { withCredentials: true });
   }
@@ -49,7 +62,10 @@ export class AdminCrudService {
   deleteArea(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/areas/${id}`, { withCredentials: true });
   }
-  // EMPLEADOS
+
+  // ==========================================
+  //               EMPLEADOS
+  // ==========================================
   getEmpleados(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/empleados`, { withCredentials: true });
   }
@@ -63,7 +79,9 @@ export class AdminCrudService {
     return this.http.delete(`${this.apiUrl}/empleados/${id}`, { withCredentials: true });
   }
 
-  // --- NUEVOS MÉTODOS DE CONTRATOS ---
+  // ==========================================
+  //           CONTRATOS 
+  // ==========================================
   getContratos(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/contratos`, { withCredentials: true });
   }
@@ -71,10 +89,23 @@ export class AdminCrudService {
   crearContrato(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/contratos`, data, { withCredentials: true });
   }
+
+  // ==========================================
+  //       BOLETAS & PLANILLAS 
+  // ==========================================
   
-  // --- NUEVOS MÉTODOS DE PLANILLA ---
+  previsualizarBoleta(data: {idEmpleado: number, mes: number, anio: number}): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/boletas/previsualizar`, data, { 
+      withCredentials: true,
+      responseType: 'blob' 
+    });
+  }
+
+  guardarBoletaGenerada(data: {idEmpleado: number, mes: number, anio: number, usuario: string}): Observable<any> {
+    return this.http.post(`${this.apiUrl}/boletas/guardar-generada`, data, { withCredentials: true });
+  }
+
   generarPlanilla(mes: number, anio: number, usuario: string): Observable<any> {
-    // El año lo obtendrá el backend si no lo enviamos, pero es mejor ser explícitos
     return this.http.post(`${this.apiUrl}/planillas/generar`, { mes, anio, usuario }, { withCredentials: true });
   }
 }

@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminCrudService } from '../../../services/admin-crud.service';
 import Swal from 'sweetalert2';
-
-// Importaciones para exportar
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -94,9 +92,16 @@ import autoTable from 'jspdf-autotable';
                         <h4 class="section-title">Datos Laborales</h4>
                         <div class="form-group"><label>Dirección</label><input type="text" [(ngModel)]="tempItem.persona.direccion" class="search-input full-width"></div>
                         <div class="form-group"><label>Email Corp.</label><input type="email" [(ngModel)]="tempItem.persona.email" class="search-input full-width"></div>
+                        
                         <div class="form-group"><label>Departamento</label>
                             <select [(ngModel)]="tempItem.departamento.idDepartamento" class="search-input full-width">
                                 <option *ngFor="let a of listaAreas" [value]="a.idDepartamento">{{ a.nombre }}</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group"><label>Cargo</label>
+                            <select [(ngModel)]="tempItem.cargo.idCargo" class="search-input full-width">
+                                <option *ngFor="let c of listaCargos" [value]="c.idCargo">{{ c.nombre }}</option>
                             </select>
                         </div>
                         <div class="form-group"><label>Fecha Ingreso</label><input type="date" [(ngModel)]="tempItem.fechaIngreso" class="search-input full-width"></div>
@@ -116,6 +121,7 @@ import autoTable from 'jspdf-autotable';
                 <div class="detail-row"><strong>Email:</strong> {{ selectedItem?.persona?.email }}</div>
                 <div class="detail-row"><strong>Teléfono:</strong> {{ selectedItem?.persona?.telefono }}</div>
                 <div class="detail-row"><strong>Departamento:</strong> {{ selectedItem?.departamento?.nombre }}</div>
+                <div class="detail-row"><strong>Cargo:</strong> {{ selectedItem?.cargo?.nombre }}</div>
                 <div class="detail-row"><strong>Estado:</strong> {{ selectedItem?.estado }}</div>
                 <div class="modal-actions"><button (click)="closeDetailModal()" class="btn-save">Cerrar</button></div>
             </div>
@@ -143,7 +149,10 @@ export class AdminEmpleadosComponent implements OnInit {
   listaFiltrada: any[] = [];
   searchText: string = '';
   
-  listaAreas: any[] = []; listaTiposDoc: any[] = [];
+  listaAreas: any[] = []; 
+  listaTiposDoc: any[] = [];
+  listaCargos: any[] = []; // NUEVA LISTA
+
   showModal = false; showDetailModal = false; isEditMode = false;
   tempItem: any = this.initEmpty(); selectedItem: any = null;
 
@@ -157,6 +166,9 @@ export class AdminEmpleadosComponent implements OnInit {
     });
     this.service.getAreas().subscribe(d => this.listaAreas = d);
     this.service.getTiposDocumento().subscribe(d => this.listaTiposDoc = d);
+    
+    // --- CARGAR CARGOS AL INICIAR ---
+    this.service.getCargos().subscribe(d => this.listaCargos = d);
   }
 
   filtrar() {
@@ -172,14 +184,11 @@ export class AdminEmpleadosComponent implements OnInit {
       }
   }
 
-  // --- EXPORTAR EXCEL MEJORADO (AUTO-ANCHO) ---
   exportarExcel() {
       if (this.listaFiltrada.length === 0) {
           Swal.fire('Atención', 'No hay datos para exportar', 'info');
           return;
       }
-
-      // 1. Mapeo de datos (Limpieza)
       const datosParaExcel = this.listaFiltrada.map(e => ({
           'Nombre Completo': e.persona?.nombres,
           'DNI': e.persona?.nroDocumento,
@@ -189,41 +198,22 @@ export class AdminEmpleadosComponent implements OnInit {
           'Fecha Ingreso': e.fechaIngreso,
           'Estado': e.estado
       }));
-
-      // 2. Crear Hoja de Trabajo
       const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(datosParaExcel);
-
-      // 3. CALCULAR ANCHO DE COLUMNAS (Auto-Size)
-      // Obtenemos las llaves (encabezados)
       const keys = Object.keys(datosParaExcel[0]);
-      
-      // Calculamos el ancho máximo para cada columna
       const columnWidths = keys.map(key => {
-          // Empezamos con el largo del encabezado
           let maxLength = key.length;
-
-          // Revisamos cada fila para ver si el contenido es más largo
           datosParaExcel.forEach(row => {
               const value = (row as any)[key] ? (row as any)[key].toString() : "";
-              if (value.length > maxLength) {
-                  maxLength = value.length;
-              }
+              if (value.length > maxLength) { maxLength = value.length; }
           });
-
-          // Retornamos el objeto de ancho (+2 para un poco de aire)
           return { wch: maxLength + 3 };
       });
-
-      // Asignamos los anchos a la hoja
       ws['!cols'] = columnWidths;
-
-      // 4. Guardar Archivo
       const wb: XLSX.WorkBook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Empleados');
       XLSX.writeFile(wb, 'Reporte_Empleados_GrupoUnion.xlsx');
   }
 
-  // --- EXPORTAR PDF ---
   exportarPDF() {
       if (this.listaFiltrada.length === 0) {
           Swal.fire('Atención', 'No hay datos para exportar', 'info');
@@ -255,18 +245,48 @@ export class AdminEmpleadosComponent implements OnInit {
       doc.save('Reporte_Empleados.pdf');
   }
 
-  // ... RESTO DE FUNCIONES IGUALES ...
   toggleEstado(e:any){
       const n=e.estado==='ACTIVO'?'CESADO':'ACTIVO'; e.estado=n;
       this.service.updateEmpleado({...e}).subscribe({error:()=>e.estado=n==='ACTIVO'?'CESADO':'ACTIVO'});
   }
-  initEmpty(){ return { persona:{nombres:'', nroDocumento:'', fechaNac:'', telefono:'', email:'', direccion:'', tipoDocumento:{idTipoDoc:1}}, departamento:{idDepartamento:null}, cargo:{idCargo:1}, fechaIngreso:new Date().toISOString().split('T')[0], estado:'ACTIVO'} }
-  openModal(m:any,i?:any){ this.isEditMode=m==='editar'; this.tempItem=i?JSON.parse(JSON.stringify(i)):this.initEmpty(); if(this.isEditMode){if(this.tempItem.persona.fechaNac)this.tempItem.persona.fechaNac=this.tempItem.persona.fechaNac.split('T')[0]; if(this.tempItem.fechaIngreso)this.tempItem.fechaIngreso=this.tempItem.fechaIngreso.split('T')[0];} this.showModal=true; }
-  guardarEmpleado(){ 
-      if(!this.tempItem.persona.nombres || !this.tempItem.departamento.idDepartamento){Swal.fire('Atención','Complete datos','warning');return;}
-      const req=this.isEditMode?this.service.updateEmpleado(this.tempItem):this.service.createEmpleado(this.tempItem);
-      req.subscribe({next:()=>{this.ngOnInit();this.closeModal();Swal.fire('Éxito','Guardado','success');},error:(e)=>Swal.fire('Error',e.error?.message,'error')});
+  
+  // INICIALIZADOR DE OBJETO VACÍO
+  initEmpty(){ 
+      return { 
+          persona:{
+              nombres:'', nroDocumento:'', fechaNac:'', telefono:'', email:'', direccion:'', 
+              tipoDocumento:{idTipoDoc:1}
+          }, 
+          departamento:{idDepartamento:null}, 
+          cargo:{idCargo:null}, // Inicializar Cargo
+          fechaIngreso:new Date().toISOString().split('T')[0], 
+          estado:'ACTIVO'
+      } 
   }
+  
+  openModal(m:any,i?:any){ 
+      this.isEditMode=m==='editar'; 
+      this.tempItem=i?JSON.parse(JSON.stringify(i)):this.initEmpty(); 
+      if(this.isEditMode){
+          if(this.tempItem.persona.fechaNac)this.tempItem.persona.fechaNac=this.tempItem.persona.fechaNac.split('T')[0]; 
+          if(this.tempItem.fechaIngreso)this.tempItem.fechaIngreso=this.tempItem.fechaIngreso.split('T')[0];
+      } 
+      this.showModal=true; 
+  }
+  
+  guardarEmpleado(){ 
+      // Validación incluyendo Cargo
+      if(!this.tempItem.persona.nombres || !this.tempItem.departamento.idDepartamento || !this.tempItem.cargo.idCargo){
+          Swal.fire('Atención','Complete todos los datos requeridos (incluyendo cargo)','warning');
+          return;
+      }
+      const req=this.isEditMode?this.service.updateEmpleado(this.tempItem):this.service.createEmpleado(this.tempItem);
+      req.subscribe({
+          next:()=>{this.ngOnInit();this.closeModal();Swal.fire('Éxito','Guardado','success');},
+          error:(e)=>Swal.fire('Error',e.error?.message,'error')
+      });
+  }
+  
   deleteEmpleado(id:number){ Swal.fire({title:'¿Eliminar?',icon:'warning',showCancelButton:true,confirmButtonColor:'#d33'}).then((r)=>{if(r.isConfirmed)this.service.deleteEmpleado(id).subscribe(()=>this.ngOnInit())}); }
   verDetalles(i:any){this.selectedItem=i;this.showDetailModal=true;}
   closeModal(){this.showModal=false;}
