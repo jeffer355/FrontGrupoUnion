@@ -60,6 +60,47 @@ declare var faceapi: any;
           </button>
         </div>
         
+        <div class="reminder-box">
+            <div class="reminder-title">RECORDATORIO:</div>
+            <div class="reminder-content">
+                Recuerda que el horario de asistencia es de 8:00am a 5:00pm.
+                <ul>
+                    <li>No se considerará horas extras en caso se marque antes de la entrada o después de la salida.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="history-section mt-4">
+            <h3 class="section-title"><i class="fas fa-list-alt"></i> Reporte de Marcaciones</h3>
+            <div class="table-responsive">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Entrada</th>
+                            <th>Salida</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of historial">
+                            <td>{{ row.fecha | date:'dd/MM/yyyy' }}</td>
+                            <td>{{ row.horaEntrada ? (row.horaEntrada | date:'HH:mm:ss') : '--' }}</td>
+                            <td>{{ row.horaSalida ? (row.horaSalida | date:'HH:mm:ss') : '--' }}</td>
+                            <td>
+                                <span class="badge" [ngClass]="getBadgeClass(row.estado)">
+                                    {{ row.estado }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr *ngIf="historial.length === 0">
+                            <td colspan="4" class="text-center p-3">No hay registros recientes.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="ip-note">
             <i class="fas fa-wifi"></i> Registro auditado por IP y Hostname.
         </div>
@@ -87,7 +128,7 @@ declare var faceapi: any;
     .status-item .label { font-size: 0.85rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
     .status-item .value { font-size: 1.2rem; font-weight: 600; color: #333; }
 
-    .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
     .btn-action { border: none; padding: 25px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 20px; transition: all 0.3s; color: white; text-align: left; position: relative; overflow: hidden; }
     .btn-action:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); }
     .btn-action:hover:not(:disabled) { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
@@ -108,6 +149,23 @@ declare var faceapi: any;
     .bg-red { background-color: #ef4444; }
     .bg-gray { background-color: #6c757d; }
 
+    /* ESTILOS REUTILIZADOS PARA LA TABLA Y EL RECORDATORIO */
+    .reminder-box {
+        background-color: #fff8e1; border-left: 5px solid #ffc107; padding: 15px; border-radius: 4px; margin-bottom: 25px; color: #5a4a18;
+    }
+    .reminder-title { font-weight: bold; margin-bottom: 5px; font-size: 0.95rem; }
+    .reminder-content { font-size: 0.9rem; }
+    .reminder-content ul { padding-left: 20px; margin: 5px 0 0 0; }
+
+    .section-title { font-size: 1.1rem; color: #003057; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    .table-responsive { overflow-x: auto; }
+    .modern-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+    .modern-table thead th { color: #8898aa; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; padding: 12px; text-align: left; background: #fff; }
+    .modern-table tbody tr { background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+    .modern-table td { padding: 12px; font-size: 0.9rem; color: #555; vertical-align: middle; }
+    .mt-4 { margin-top: 1.5rem; }
+    .text-center { text-align: center; }
+
     .video-container { width: 100%; height: 300px; background: #000; border-radius: 10px; }
     
     @media (max-width: 600px) { .action-buttons { grid-template-columns: 1fr; } }
@@ -120,17 +178,19 @@ export class AsistenciaComponent implements OnInit, AfterViewInit {
   
   fechaActual = new Date();
   asistenciaHoy: any = null;
+  historial: any[] = []; // Nueva lista para el reporte
 
   isScanning = false;
   modelLoaded = false;
 
   constructor(
     private asistenciaService: AsistenciaService,
-    private cdr: ChangeDetectorRef // IMPORTANTE: Inyectar esto para forzar actualización visual
+    private cdr: ChangeDetectorRef 
   ) {}
 
   ngOnInit() {
     this.cargarDatos();
+    this.cargarHistorial(); // Cargar reporte al inicio
     if (this.biometriaActiva) this.loadModels();
   }
 
@@ -142,13 +202,54 @@ export class AsistenciaComponent implements OnInit, AfterViewInit {
     this.asistenciaService.obtenerHoy().subscribe({
         next: (data) => {
             this.asistenciaHoy = data;
-            this.cdr.detectChanges(); // Asegurar renderizado
+            this.cdr.detectChanges(); 
         },
         error: (err) => console.error(err)
     });
   }
 
+  // NUEVO: Método para cargar historial del empleado
+  cargarHistorial() {
+      this.asistenciaService.getMisRegistros().subscribe({
+          next: (data) => {
+              this.historial = data;
+              this.cdr.detectChanges();
+          }
+      });
+  }
+
   confirmarAccion(tipo: 'ENTRADA' | 'SALIDA') {
+    // Validaciones Frontend Rápidas
+    const ahora = new Date();
+    const hora = ahora.getHours();
+    const min = ahora.getMinutes();
+
+    if (tipo === 'ENTRADA') {
+        // Antes de las 8:00 AM (Hora 8)
+        if (hora < 8) {
+            Swal.fire('Atención', 'No se permite marcar entrada antes de las 8:00 AM.', 'warning');
+            return;
+        }
+    }
+
+    if (tipo === 'SALIDA') {
+        // Antes de las 5:00 PM (Hora 17)
+        if (hora < 17) {
+             Swal.fire({
+                title: 'Salida Anticipada',
+                text: 'La hora de salida válida es a partir de las 5:00 PM. ¿Confirmar salida anticipada?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sí, salir',
+                cancelButtonText: 'Cancelar'
+             }).then((r) => {
+                if (r.isConfirmed) this.procesarMarcacion('SALIDA', true);
+             });
+             return; // Detener flujo normal
+        }
+    }
+
     Swal.fire({
       title: `¿Desea marcar ${tipo.toLowerCase()}?`,
       text: "Se registrará la hora exacta.",
@@ -169,13 +270,14 @@ export class AsistenciaComponent implements OnInit, AfterViewInit {
     this.asistenciaService.marcar(tipo, forzar).subscribe({
       next: (res: any) => {
         if (res.status === 'CONFIRMATION_REQUIRED') {
+          // Fallback por si el backend detecta algo que el frontend no
           Swal.fire({
-            title: 'Salida Anticipada',
+            title: 'Confirmación Requerida',
             text: res.message,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            confirmButtonText: 'Sí, confirmar salida',
+            confirmButtonText: 'Confirmar',
             cancelButtonText: 'Cancelar'
           }).then((r) => {
             if (r.isConfirmed) this.procesarMarcacion('SALIDA', true);
@@ -183,15 +285,13 @@ export class AsistenciaComponent implements OnInit, AfterViewInit {
         } else {
           Swal.fire('Éxito', res.message, 'success');
           
-          // --- CORRECCIÓN CLAVE AQUÍ ---
-          // Actualizamos la vista DIRECTAMENTE con lo que devuelve el backend
-          // No esperamos a cargarDatos()
           if (res.data) {
               this.asistenciaHoy = res.data;
-              this.cdr.detectChanges(); // Forzamos a Angular a pintar el cambio YA
+              this.cargarHistorial(); // Actualizar la tabla de abajo
+              this.cdr.detectChanges(); 
           } else {
-              // Fallback por si acaso
               this.cargarDatos();
+              this.cargarHistorial();
           }
         }
       },
@@ -206,6 +306,6 @@ export class AsistenciaComponent implements OnInit, AfterViewInit {
     return 'bg-red';
   }
 
-  async loadModels() { /* Código original */ }
-  startVideo() { /* Código original */ }
+  async loadModels() { /* Código original biometría */ }
+  startVideo() { /* Código original biometría */ }
 }

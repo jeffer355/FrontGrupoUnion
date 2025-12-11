@@ -19,6 +19,11 @@ export class AsistenciaService {
     return this.http.post(`${this.apiUrl}/marcar`, { tipo, confirmado }, { withCredentials: true });
   }
 
+  // NUEVO: Obtener historial propio del empleado
+  getMisRegistros(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/mis-registros`, { withCredentials: true });
+  }
+
   // --- ADMIN ---
   getReporteDiario(fecha?: string): Observable<any[]> {
     const url = fecha ? `${this.apiUrl}/reporte-diario?fecha=${fecha}` : `${this.apiUrl}/reporte-diario`;
