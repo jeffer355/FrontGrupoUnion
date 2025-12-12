@@ -11,6 +11,7 @@ declare var faceapi: any;
   imports: [CommonModule],
   template: `
     <div class="bio-container fade-in">
+      
       <div class="header-section">
         <h2><i class="fas fa-user-clock"></i> Registro de Asistencia</h2>
         <p class="date-display">{{ fechaActual | date:'fullDate' | titlecase }}</p>
@@ -45,7 +46,7 @@ declare var faceapi: any;
             <div class="icon"><i class="fas fa-sign-in-alt"></i></div>
             <div class="text">
               <span class="main">MARCAR ENTRADA</span>
-              <span class="sub">Registrar inicio de labores</span>
+              <span class="sub">Registrar inicio</span>
             </div>
           </button>
 
@@ -55,7 +56,7 @@ declare var faceapi: any;
             <div class="icon"><i class="fas fa-sign-out-alt"></i></div>
             <div class="text">
               <span class="main">MARCAR SALIDA</span>
-              <span class="sub">Registrar fin de labores</span>
+              <span class="sub">Registrar fin</span>
             </div>
           </button>
         </div>
@@ -63,9 +64,10 @@ declare var faceapi: any;
         <div class="reminder-box">
             <div class="reminder-title">RECORDATORIO:</div>
             <div class="reminder-content">
-                Recuerda que el horario de asistencia es de 8:00am a 5:00pm.
+                El horario de asistencia es de 8:00am a 5:00pm.
                 <ul>
-                    <li>No se considerará horas extras en caso se marque antes de la entrada o después de la salida.</li>
+                    <li>Tolerancia de ingreso: hasta 8:30am.</li>
+                    <li>Salida antes de las 5:00pm se considera falta.</li>
                 </ul>
             </div>
         </div>
@@ -76,11 +78,11 @@ declare var faceapi: any;
                 <table class="modern-table">
                     <thead>
                         <tr>
-                            <th>Fecha</th>
-                            <th>Entrada</th>
-                            <th>Salida</th>
-                            <th>Estado</th>
-                        </tr>
+                            <th style="width: 15%">Fecha</th>
+                            <th style="width: 15%">Entrada</th>
+                            <th style="width: 15%">Salida</th>
+                            <th style="width: 20%">Estado</th>
+                            <th style="width: 35%">Observación</th> </tr>
                     </thead>
                     <tbody>
                         <tr *ngFor="let row of historial">
@@ -92,9 +94,12 @@ declare var faceapi: any;
                                     {{ row.estado }}
                                 </span>
                             </td>
+                            <td style="font-size: 0.85rem; color: #555; font-style: italic;">
+                                {{ row.observacion || '-' }}
+                            </td>
                         </tr>
                         <tr *ngIf="historial.length === 0">
-                            <td colspan="4" class="text-center p-3">No hay registros recientes.</td>
+                            <td colspan="5" class="text-center p-3">No hay registros recientes.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -116,7 +121,7 @@ declare var faceapi: any;
     </div>
   `,
   styles: [`
-    .bio-container { max-width: 800px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', sans-serif; }
+    .bio-container { max-width: 900px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', sans-serif; }
     .header-section { text-align: center; margin-bottom: 30px; }
     .header-section h2 { color: #003057; font-size: 2rem; margin-bottom: 5px; }
     .date-display { color: #666; font-size: 1.1rem; }
@@ -141,15 +146,6 @@ declare var faceapi: any;
     .btn-action .main { font-size: 1.2rem; font-weight: 800; letter-spacing: 0.5px; }
     .btn-action .sub { font-size: 0.8rem; opacity: 0.9; }
 
-    .ip-note { text-align: center; margin-top: 20px; color: #aaa; font-size: 0.8rem; }
-
-    .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; color: white; font-weight: 600; }
-    .bg-green { background-color: #10b981; }
-    .bg-orange { background-color: #f59e0b; }
-    .bg-red { background-color: #ef4444; }
-    .bg-gray { background-color: #6c757d; }
-
-    /* ESTILOS REUTILIZADOS PARA LA TABLA Y EL RECORDATORIO */
     .reminder-box {
         background-color: #fff8e1; border-left: 5px solid #ffc107; padding: 15px; border-radius: 4px; margin-bottom: 25px; color: #5a4a18;
     }
@@ -162,10 +158,16 @@ declare var faceapi: any;
     .modern-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
     .modern-table thead th { color: #8898aa; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; padding: 12px; text-align: left; background: #fff; }
     .modern-table tbody tr { background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-    .modern-table td { padding: 12px; font-size: 0.9rem; color: #555; vertical-align: middle; }
+    .modern-table td { padding: 12px; font-size: 0.9rem; color: #555; vertical-align: middle; border-top: 1px solid #f0f0f0; }
+
+    .ip-note { text-align: center; margin-top: 20px; color: #aaa; font-size: 0.8rem; }
+    .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; color: white; font-weight: 600; }
+    .bg-green { background-color: #10b981; }
+    .bg-orange { background-color: #f59e0b; }
+    .bg-red { background-color: #ef4444; }
+    .bg-gray { background-color: #6c757d; }
     .mt-4 { margin-top: 1.5rem; }
     .text-center { text-align: center; }
-
     .video-container { width: 100%; height: 300px; background: #000; border-radius: 10px; }
     
     @media (max-width: 600px) { .action-buttons { grid-template-columns: 1fr; } }
@@ -175,11 +177,9 @@ export class AsistenciaComponent implements OnInit, AfterViewInit {
   @ViewChild('videoElement') videoRef!: ElementRef;
   
   biometriaActiva = false;
-  
   fechaActual = new Date();
   asistenciaHoy: any = null;
-  historial: any[] = []; // Nueva lista para el reporte
-
+  historial: any[] = [];
   isScanning = false;
   modelLoaded = false;
 
@@ -190,7 +190,7 @@ export class AsistenciaComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.cargarDatos();
-    this.cargarHistorial(); // Cargar reporte al inicio
+    this.cargarHistorial();
     if (this.biometriaActiva) this.loadModels();
   }
 
@@ -200,99 +200,91 @@ export class AsistenciaComponent implements OnInit, AfterViewInit {
 
   cargarDatos() {
     this.asistenciaService.obtenerHoy().subscribe({
-        next: (data) => {
-            this.asistenciaHoy = data;
-            this.cdr.detectChanges(); 
-        },
-        error: (err) => console.error(err)
+        next: (d) => { this.asistenciaHoy = d; this.cdr.detectChanges(); },
+        error: (e) => console.error(e)
     });
   }
 
-  // NUEVO: Método para cargar historial del empleado
   cargarHistorial() {
       this.asistenciaService.getMisRegistros().subscribe({
-          next: (data) => {
-              this.historial = data;
+          next: (d) => {
+              this.historial = d;
               this.cdr.detectChanges();
           }
       });
   }
 
   confirmarAccion(tipo: 'ENTRADA' | 'SALIDA') {
-    // Validaciones Frontend Rápidas
     const ahora = new Date();
     const hora = ahora.getHours();
-    const min = ahora.getMinutes();
 
-    if (tipo === 'ENTRADA') {
-        // Antes de las 8:00 AM (Hora 8)
-        if (hora < 8) {
-            Swal.fire('Atención', 'No se permite marcar entrada antes de las 8:00 AM.', 'warning');
-            return;
-        }
+    // 1. RESTRICCIÓN 8 AM
+    if (tipo === 'ENTRADA' && hora < 8) {
+        Swal.fire('Atención', 'No se permite marcar entrada antes de las 8:00 AM.', 'warning');
+        return;
     }
 
-    if (tipo === 'SALIDA') {
-        // Antes de las 5:00 PM (Hora 17)
-        if (hora < 17) {
-             Swal.fire({
-                title: 'Salida Anticipada',
-                text: 'La hora de salida válida es a partir de las 5:00 PM. ¿Confirmar salida anticipada?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Sí, salir',
-                cancelButtonText: 'Cancelar'
-             }).then((r) => {
-                if (r.isConfirmed) this.procesarMarcacion('SALIDA', true);
-             });
-             return; // Detener flujo normal
-        }
+    // 2. CONFIGURACIÓN MODAL
+    let titulo = `Marcar ${tipo === 'ENTRADA' ? 'Entrada' : 'Salida'}`;
+    let texto = "¿Desea agregar una observación? (Opcional)";
+    let icon: 'question' | 'warning' = 'question';
+    let confirmBtnText = 'Registrar';
+    let confirmBtnColor = tipo === 'ENTRADA' ? '#10b981' : '#ef4444';
+
+    // Salida anticipada (Advertencia visual, lógica está en backend)
+    if (tipo === 'SALIDA' && hora < 17) {
+        titulo = 'Salida Anticipada';
+        texto = 'Estás saliendo antes de las 5:00 PM. Se registrará como FALTA.';
+        icon = 'warning';
+        confirmBtnText = 'Registrar Salida';
+        confirmBtnColor = '#d33';
     }
 
     Swal.fire({
-      title: `¿Desea marcar ${tipo.toLowerCase()}?`,
-      text: "Se registrará la hora exacta.",
-      icon: 'question',
+      title: titulo,
+      text: texto,
+      input: 'textarea', 
+      inputPlaceholder: 'Escribe aquí tu observación...',
+      icon: icon,
       showCancelButton: true,
-      confirmButtonColor: tipo === 'ENTRADA' ? '#10b981' : '#ef4444',
-      confirmButtonText: 'Sí, registrar'
+      confirmButtonColor: confirmBtnColor,
+      confirmButtonText: confirmBtnText,
+      cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.procesarMarcacion(tipo, false);
+        this.procesarMarcacion(tipo, false, result.value);
       }
     });
   }
 
-  procesarMarcacion(tipo: 'ENTRADA' | 'SALIDA', forzar: boolean) {
+  procesarMarcacion(tipo: 'ENTRADA' | 'SALIDA', forzar: boolean, obs: string = '') {
     Swal.fire({ title: 'Procesando...', didOpen: () => Swal.showLoading() });
     
-    this.asistenciaService.marcar(tipo, forzar).subscribe({
+    this.asistenciaService.marcar(tipo, forzar, obs).subscribe({
       next: (res: any) => {
         if (res.status === 'CONFIRMATION_REQUIRED') {
-          // Fallback por si el backend detecta algo que el frontend no
+          // Reconfirmación si el backend lo exige
           Swal.fire({
             title: 'Confirmación Requerida',
-            text: res.message,
+            text: res.message, 
             icon: 'warning',
+            input: 'textarea',
+            inputValue: obs, 
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            confirmButtonText: 'Confirmar',
+            confirmButtonText: 'Confirmar Salida',
             cancelButtonText: 'Cancelar'
           }).then((r) => {
-            if (r.isConfirmed) this.procesarMarcacion('SALIDA', true);
+            if (r.isConfirmed) {
+                this.procesarMarcacion('SALIDA', true, r.value);
+            }
           });
         } else {
           Swal.fire('Éxito', res.message, 'success');
-          
-          if (res.data) {
-              this.asistenciaHoy = res.data;
-              this.cargarHistorial(); // Actualizar la tabla de abajo
-              this.cdr.detectChanges(); 
-          } else {
-              this.cargarDatos();
-              this.cargarHistorial();
-          }
+          if (res.data) this.asistenciaHoy = res.data;
+          this.cargarDatos();
+          this.cargarHistorial(); 
+          this.cdr.detectChanges(); 
         }
       },
       error: (e) => Swal.fire('Error', e.error?.message || 'Error de conexión', 'error')
@@ -306,6 +298,6 @@ export class AsistenciaComponent implements OnInit, AfterViewInit {
     return 'bg-red';
   }
 
-  async loadModels() { /* Código original biometría */ }
-  startVideo() { /* Código original biometría */ }
+  async loadModels() {}
+  startVideo() {}
 }
