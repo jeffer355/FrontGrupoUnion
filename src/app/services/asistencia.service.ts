@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AsistenciaService {
-  private apiUrl = 'http://localhost:8081/api/asistencia-manual';
+  private apiUrl = 'https://grupounion-backend.onrender.com/api/asistencia-manual';
 
   constructor(private http: HttpClient) {}
 

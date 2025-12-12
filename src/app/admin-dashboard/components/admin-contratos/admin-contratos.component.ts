@@ -342,7 +342,7 @@ export class AdminContratosComponent implements OnInit {
   }
 
   descargarPdf(id: number) {
-      window.open(`http://localhost:8081/api/admin/contratos/${id}/pdf`, '_blank');
+      window.open(`https://grupounion-backend.onrender.com/api/admin/contratos/${id}/pdf`, '_blank');
   }
 
   getColor(name: string): string {

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class BiometriaService {
-  private apiUrl = 'http://localhost:8081/api/biometria';
+  private apiUrl = 'https://grupounion-backend.onrender.com/api/biometria';
 
   constructor(private http: HttpClient) {}
 

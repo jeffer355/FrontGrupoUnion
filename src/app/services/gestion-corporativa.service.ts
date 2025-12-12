@@ -4,7 +4,7 @@ import { Observable, Subject, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class GestionCorporativaService {
-  private apiUrl = 'http://localhost:8081/api/gestion';
+  private apiUrl = 'https://grupounion-backend.onrender.com/api/gestion';
   private _refreshNeeded$ = new Subject<void>();
 
   constructor(private http: HttpClient) {}

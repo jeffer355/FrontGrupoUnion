@@ -6,7 +6,7 @@ import { Observable, BehaviorSubject, tap } from 'rxjs';
   providedIn: 'root'
 })
 export class DashboardService {
-  private apiUrl = 'http://localhost:8081/api';
+  private apiUrl = 'https://grupounion-backend.onrender.com/api';
 
   private adminPhotoSource = new BehaviorSubject<string | null>(null);
   currentAdminPhoto$ = this.adminPhotoSource.asObservable();

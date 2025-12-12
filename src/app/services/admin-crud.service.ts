@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AdminCrudService {
-  private apiUrl = 'http://localhost:8081/api/admin';
+  private apiUrl = 'https://grupounion-backend.onrender.com/api/admin';
 
   constructor(private http: HttpClient) { }
 

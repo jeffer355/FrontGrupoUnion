@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8081/api/auth';
+  private apiUrl = 'https://grupounion-backend.onrender.com/api/auth';
   private userKey = 'grupoUnionUser';
 
   constructor(private http: HttpClient, private router: Router) { }
