@@ -1,24 +1,21 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 
-// Esta función intercepta todas las peticiones y les añade la opción 
-// de enviar credenciales (cookies) si la URL coincide con la de tu backend.
 export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {
     
-    // URL de tu backend de Render
     const backendUrl = 'https://grupounion-backend.onrender.com';
     
+    // Si la petición va a nuestro backend
     if (req.url.startsWith(backendUrl)) {
         
-        // Clonamos la petición para añadir withCredentials: true.
-        // Esto fuerza al navegador a adjuntar la cookie JSESSIONID.
+        // Clonamos la petición para AÑADIR las credenciales
         const clonedRequest = req.clone({
             withCredentials: true
         });
         
-        // Continuamos la cadena de intercepción con la petición modificada
+        // Ejecutamos la petición clonada (con la cookie JSESSIONID adjunta)
         return next(clonedRequest);
     }
     
-    // Si no es tu backend, pasamos la petición sin modificar
+    // Para todas las demás peticiones, se pasan sin modificar
     return next(req);
 };
