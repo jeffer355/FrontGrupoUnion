@@ -1,21 +1,31 @@
 import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { AuthService } from '../services/auth.service'; // Asegúrate que esta ruta sea correcta
 
 export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {
     
+    // Inyectamos el servicio para obtener el token
+    const authService = inject(AuthService); 
+    const token = authService.getToken(); // Obtiene el token JWT
+    
+    // URL de tu backend de Render
     const backendUrl = 'https://grupounion-backend.onrender.com';
     
-    // Si la petición va a nuestro backend
-    if (req.url.startsWith(backendUrl)) {
+    // Si tenemos un token Y la petición va a nuestro backend
+    if (token && req.url.startsWith(backendUrl)) {
         
-        // Clonamos la petición para AÑADIR las credenciales
+        // Clonamos para añadir el encabezado Authorization: Bearer
         const clonedRequest = req.clone({
-            withCredentials: true
+            setHeaders: {
+                Authorization: `Bearer ${token}` // 👈 CLAVE: Envía el token JWT
+            },
+            // CRÍTICO: Aseguramos que NO se envíen cookies de sesión
+            withCredentials: false 
         });
         
-        // Ejecutamos la petición clonada (con la cookie JSESSIONID adjunta)
         return next(clonedRequest);
     }
     
-    // Para todas las demás peticiones, se pasan sin modificar
+    // Si no hay token o no es nuestra API, pasamos la petición original
     return next(req);
 };
