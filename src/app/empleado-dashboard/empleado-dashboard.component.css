@@ -3,9 +3,9 @@
 
 /* --- Sidebar (Tema Empleado - Azul) --- */
 .sidebar.sidebar-employee {
-  width: 250px; padding: 20px; color: white; display: flex; flex-direction: column;
-  justify-content: space-between; flex-shrink: 0; transition: margin-left 0.3s ease;
-  z-index: 1000; background-color: #3969FC;
+  width: 250px; padding: 20px; color: white; display: flex; flex-direction: column;
+  justify-content: space-between; flex-shrink: 0; transition: margin-left 0.3s ease;
+  z-index: 1000; background-color: #3969FC;
 }
 
 .sidebar-header { display: flex; align-items: center; gap: 12px; padding: 0 20px; margin-bottom: 10px; position: relative; top: -15px; }
@@ -15,8 +15,8 @@
 /* PERFIL SIDEBAR EMPLEADO: RESPALDO CSS */
 .sidebar .profile-info { text-align: center; margin-bottom: 20px; }
 .sidebar .profile-info img {
-  border-radius: 20px !important; 
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  border-radius: 20px !important; 
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 .sidebar .profile-info h3 { font-size: 1.1rem; margin-bottom: 5px; }
 .sidebar .profile-info a { color: lightgray; text-decoration: none; font-size: 0.9em; }
@@ -40,6 +40,21 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 .bell-icon { font-size: 1.5em; cursor: pointer; color: #333333; }
 .menu-toggle { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: #333333; }
 
+/* --- NUEVO: Botón de Cierre en Sidebar Móvil --- */
+.close-sidebar-btn { 
+    display: none; /* Ocultar por defecto */
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 5px;
+    z-index: 1001; /* Asegurar que esté encima de todo en el sidebar */
+}
+
 /* Profile Card Detalle */
 .profile-card { background-color: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); padding: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; border: 1px solid #e0e0e0; }
 .profile-content-wrapper { display: flex; align-items: center; }
@@ -49,4 +64,21 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 .profile-info-text p { color: black; }
 .edit-profile-button { background-color: #e9ecef; border: 1px solid #ced4da; color: #495057; padding: 6px 15px; border-radius: 20px; margin-top: 10px; font-size: 0.9rem; display: inline-flex; align-items: center; text-decoration: none; }
 
-@media (max-width: 600px) { .sidebar { width: 80%; max-width: 280px; height: 100vh; position: fixed; top: 0; left: 0; margin-left: -100%; } .sidebar.active { margin-left: 0; } .menu-toggle { display: block; } .page-content { padding: 10px; } }
+@media (max-width: 600px) { 
+    .sidebar { 
+        width: 80%; max-width: 280px; 
+        height: 100vh; 
+        position: fixed; top: 0; left: 0; 
+        margin-left: -100%; 
+    } 
+    .sidebar.active { 
+        margin-left: 0; 
+    } 
+    .menu-toggle { 
+        display: block; 
+    } 
+    /* Mostrar el botón de cierre en móvil cuando el sidebar esté activo */
+    .sidebar.active .close-sidebar-btn { 
+        display: block; 
+    }
+}

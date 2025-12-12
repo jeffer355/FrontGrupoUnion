@@ -1,13 +1,13 @@
 /* =========================================
-   1. ESTILOS GENERALES Y LAYOUT
-   ========================================= */
+   1. ESTILOS GENERALES Y LAYOUT
+   ========================================= */
 .layout-wrapper { display: flex; width: 100vw; min-height: 100vh; overflow-x: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; }
 .main-content { flex-grow: 1; background-color: #f4f7f6; overflow-y: auto; height: 100vh; padding: 0; }
 .page-content { padding: 25px; }
 
 /* =========================================
-   2. SIDEBAR (ADMIN THEME - ROJO)
-   ========================================= */
+   2. SIDEBAR (ADMIN THEME - ROJO)
+   ========================================= */
 .sidebar.sidebar-admin { width: 250px; padding: 20px; color: white; display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; transition: margin-left 0.3s ease; z-index: 1000; background-color: #e60000; }
 .sidebar-header { display: flex; align-items: center; gap: 12px; padding: 0 20px; margin-bottom: 10px; position: relative; top: -15px; }
 .sidebar-logo { width: 40px; height: 40px; object-fit: contain; }
@@ -16,9 +16,9 @@
 /* --- PERFIL SIDEBAR (RESPALDO CSS) --- */
 .sidebar .profile-info { text-align: center; background-color: transparent; padding: 0; box-shadow: none; border-radius: 0; margin-bottom: 20px; color: white; }
 .sidebar .profile-info img {
-  /* ESTO APLICA SI NO HUBIERA ESTILO EN LINEA */
-  border-radius: 20px !important; 
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  /* ESTO APLICA SI NO HUBIERA ESTILO EN LINEA */
+  border-radius: 20px !important; 
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 .sidebar .profile-info h3 { font-size: 1.1rem; margin-bottom: 5px; color: white; }
 .sidebar .profile-info a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9em; }
@@ -40,9 +40,24 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 .bell-icon { font-size: 1.5em; cursor: pointer; color: #333333; }
 .menu-toggle { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: #333333; }
 
+/* --- NUEVO: Botón de Cierre en Sidebar Móvil --- */
+.close-sidebar-btn { 
+    display: none; /* Ocultar por defecto */
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 5px;
+    z-index: 1001; /* Asegurar que esté encima de todo en el sidebar */
+}
+
 /* =========================================
-   3. ESTILOS TARJETAS (HOME)
-   ========================================= */
+   3. ESTILOS TARJETAS (HOME)
+   ========================================= */
 .stats-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
 .stat-card { background-color: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); padding: 20px; text-align: center; color: white; position: relative; overflow: hidden; }
 .stat-card .card-kpi-number { position: absolute; top: -10px; left: 10px; font-size: 4em; font-weight: bold; color: rgba(255, 255, 255, 0.3); z-index: 1; }
@@ -52,8 +67,8 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 .stat-card.card-users { background-color: #3f51b5; } .stat-card.card-areas { background-color: #607d8b; } .stat-card.card-employees { background-color: #00bcd4; } .stat-card.card-attendances { background-color: #303f9f; }
 
 /* =========================================
-   4. CRUD CONTAINER & TABLAS
-   ========================================= */
+   4. CRUD CONTAINER & TABLAS
+   ========================================= */
 .crud-container { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); animation: fadeIn 0.4s ease-in-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .crud-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -64,15 +79,17 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 .modern-table td { padding: 15px; vertical-align: middle; color: #333; border-top: 1px solid #f9f9f9; border-bottom: 1px solid #f9f9f9; }
 .modern-table td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; border-left: 1px solid #f9f9f9; }
 .modern-table td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-right: 1px solid #f9f9f9; }
+.modern-table tr:hover td { background-color: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.03); transform: translateY(-1px); } /* Añadido efecto hover */
+
 .user-cell { display: flex; align-items: center; gap: 10px; }
 
 /* --- FOTO PEQUEÑA TABLA (CIRCULAR) --- */
 .user-avatar-small {
-    width: 40px; height: 40px; background-color: #e60000; color: white;
-    border-radius: 50% !important; /* FORZAR CÍRCULO */
-    display: flex; justify-content: center; align-items: center;
-    font-weight: bold; font-size: 0.9rem; object-fit: cover;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 40px; height: 40px; background-color: #e60000; color: white;
+    border-radius: 50% !important; /* FORZAR CÍRCULO */
+    display: flex; justify-content: center; align-items: center;
+    font-weight: bold; font-size: 0.9rem; object-fit: cover;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .badge { padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
@@ -94,7 +111,30 @@ nav ul li { text-align: left; margin-bottom: 8px; }
 .search-input-table { padding: 8px 15px 8px 35px; border: 1px solid #ddd; border-radius: 20px; width: 250px; outline: none; }
 .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; }
 
-@media (max-width: 600px) { .sidebar.sidebar-admin { margin-left: -100%; position:fixed; height:100vh;} .sidebar.active { margin-left: 0; } .menu-toggle { display: block; } }
+@media (max-width: 600px) { 
+    .sidebar.sidebar-admin { 
+        margin-left: -100%; 
+        position:fixed; 
+        height:100vh; 
+    } 
+    .sidebar.active { 
+        margin-left: 0; 
+    } 
+    .menu-toggle { 
+        display: block; 
+    } 
+    /* Mostrar el botón de cierre en móvil cuando el sidebar esté activo */
+    .sidebar.active .close-sidebar-btn { 
+        display: block; 
+    }
+    /* Ocultar el botón hamburguesa si no quieres que se vea cuando el sidebar está abierto (opcional) */
+    /* .sidebar.active ~ .main-content .menu-toggle { visibility: hidden; } */
+    
+    /* Ocultar el botón de cierre en escritorio */
+    .close-sidebar-btn { 
+        display: none !important; 
+    }
+}
 
 /* BOTONES EXPORTAR NEUTROS */
 .btn-export { background-color: #fff; border: 1px solid #ddd; color: #333; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
