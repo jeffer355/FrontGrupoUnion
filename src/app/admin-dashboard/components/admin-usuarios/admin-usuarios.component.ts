@@ -26,7 +26,12 @@ import Swal from 'sweetalert2';
         <div class="table-responsive">
             <table class="modern-table">
                 <thead>
-                    <tr><th>ID</th><th>Usuario (Foto)</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario (Foto)</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th style="text-align: center;">Acciones</th> </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let u of listaFiltrada">
@@ -47,10 +52,9 @@ import Swal from 'sweetalert2';
                             </span>
                         </td>
                         <td>
-                            <div style="display: flex; gap: 5px;">
-                                <button class="action-btn view" (click)="verDetalles(u)"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn edit" (click)="openModal('editar', u)"><i class="fas fa-pen"></i></button>
-                                <button class="action-btn delete" (click)="deleteUsuario(u.idUsuario)"><i class="fas fa-trash"></i></button>
+                            <div style="display: flex; gap: 10px; justify-content: center;">
+                                <button class="action-btn view" (click)="verDetalles(u)" title="Ver detalles"><i class="fas fa-eye"></i></button>
+                                <button class="action-btn edit" (click)="openModal('editar', u)" title="Editar"><i class="fas fa-pen"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -100,7 +104,7 @@ import Swal from 'sweetalert2';
             <div class="modal-content">
                 <h3>Detalles</h3>
                 <div style="text-align:center; margin-bottom:15px;" *ngIf="selectedItem?.persona?.fotoUrl">
-                     <img [src]="selectedItem.persona.fotoUrl" style="width:100px; height:100px; border-radius:50%; object-fit:cover;">
+                      <img [src]="selectedItem.persona.fotoUrl" style="width:100px; height:100px; border-radius:50%; object-fit:cover;">
                 </div>
                 <div class="detail-row"><strong>Usuario:</strong> {{ selectedItem?.username }}</div>
                 <div class="detail-row"><strong>Rol:</strong> {{ selectedItem?.rol?.nombre }}</div>
@@ -209,13 +213,8 @@ export class AdminUsuariosComponent implements OnInit {
       Swal.fire({ icon: 'success', title: 'Éxito', text: msg, confirmButtonColor: '#10b981' });
   }
 
-  deleteUsuario(id: number) {
-      Swal.fire({ title: '¿Eliminar?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then((r) => {
-          if (r.isConfirmed) this.service.deleteUsuario(id).subscribe(() => { this.cargarUsuarios(); Swal.fire('Eliminado', '', 'success'); });
-      });
-  }
+  // Se eliminó la función deleteUsuario()
 
-  // --- CORRECCIÓN IMPORTANTE: Inicializar estructura completa de Persona ---
   initEmpty() { 
       return { 
           username: '', 

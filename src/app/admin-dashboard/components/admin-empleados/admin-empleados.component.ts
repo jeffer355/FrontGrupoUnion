@@ -60,8 +60,7 @@ import autoTable from 'jspdf-autotable';
                         <td>
                             <button class="action-btn view" (click)="verDetalles(emp)"><i class="fas fa-eye"></i></button>
                             <button class="action-btn edit" (click)="openModal('editar', emp)"><i class="fas fa-pen"></i></button>
-                            <button class="action-btn delete" (click)="deleteEmpleado(emp.idEmpleado)"><i class="fas fa-trash"></i></button>
-                        </td>
+                            </td>
                     </tr>
                     <tr *ngIf="listaFiltrada.length === 0">
                         <td colspan="6" style="text-align: center; padding: 20px; color: #666;">No se encontraron empleados.</td>
@@ -317,7 +316,6 @@ export class AdminEmpleadosComponent implements OnInit {
       });
   }
   
-  deleteEmpleado(id:number){ Swal.fire({title:'¿Eliminar?',icon:'warning',showCancelButton:true,confirmButtonColor:'#d33'}).then((r)=>{if(r.isConfirmed)this.service.deleteEmpleado(id).subscribe(()=>this.ngOnInit())}); }
   verDetalles(i:any){this.selectedItem=i;this.showDetailModal=true;}
   closeModal(){this.showModal=false;}
   closeDetailModal(){this.showDetailModal=false;}

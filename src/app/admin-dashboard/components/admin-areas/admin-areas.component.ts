@@ -40,8 +40,7 @@ import Swal from 'sweetalert2';
                         <td>
                             <button class="action-btn view" (click)="verDetalles(area)" title="Ver Personal Asignado"><i class="fas fa-eye"></i></button>
                             <button class="action-btn edit" (click)="openModal('editar', area)"><i class="fas fa-pen"></i></button>
-                            <button class="action-btn delete" (click)="deleteArea(area)"><i class="fas fa-trash"></i></button>
-                        </td>
+                            </td>
                     </tr>
                     <tr *ngIf="listaFiltrada.length === 0">
                         <td colspan="4" style="text-align:center; padding:20px; color:#666;">No se encontraron áreas.</td>
@@ -191,28 +190,7 @@ export class AdminAreasComponent implements OnInit {
       });
   }
 
-  deleteArea(area: any) {
-      Swal.fire({
-          title: '¿Estás seguro?',
-          text: `Se eliminará el área: ${area.nombre}`,
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#3085d6',
-          confirmButtonText: 'Sí, eliminar',
-          cancelButtonText: 'Cancelar'
-      }).then((result) => {
-          if (result.isConfirmed) {
-              this.service.deleteArea(area.idDepartamento).subscribe({
-                  next: () => {
-                      this.cargarAreas();
-                      Swal.fire('Eliminado!', 'El área ha sido eliminada.', 'success');
-                  },
-                  error: (e) => Swal.fire('Error', e.error?.message || "No se puede eliminar", 'error')
-              });
-          }
-      });
-  }
+  // --- Método deleteArea ELIMINADO ---
 
   closeModal() { this.showModal = false; }
   closeDetailModal() { this.showDetailModal = false; }
